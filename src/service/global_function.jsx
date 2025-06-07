@@ -78,6 +78,81 @@ export async function SysRegister(name, surname, email, password) {
   }
 }
 
+export async function SysGetDevices() {
+  try {
+    const token = localStorage.getItem("x-token");
+    const { data } = await apiClient.get("/api/devices", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (data.message === "OK") {
+      return data.data;
+    }
+    return [];
+  } catch (error) {
+    console.error("Fetching devices failed:", error);
+    return [];
+  }
+}
+
+export async function SysCreateDevice(payload) {
+  try {
+    const token = localStorage.getItem("x-token");
+    const { data } = await apiClient.post("/api/devices", payload, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return data.message === "OK" ? data.data : null;
+  } catch (error) {
+    console.error("Create device failed:", error);
+    return null;
+  }
+}
+
+export async function SysUpdateDevice(id, payload) {
+  try {
+    const token = localStorage.getItem("x-token");
+    const { data } = await apiClient.put(`/api/devices/${id}`, payload, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return data.message === "OK" ? data.data : null;
+  } catch (error) {
+    console.error("Update device failed:", error);
+    return null;
+  }
+}
+
+export async function SysDeleteDevice(id) {
+  try {
+    const token = localStorage.getItem("x-token");
+    const { data } = await apiClient.delete(`/api/devices/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return data.message === "OK";
+  } catch (error) {
+    console.error("Delete device failed:", error);
+    return false;
+  }
+}
+
+export function subscribeDeviceRealtime(deviceId, onMessage) {
+  try {
+    const ws = new WebSocket(
+      `${import.meta.env.VITE_WEB_SOCKET}/ws/device/${deviceId}`
+    );
+    ws.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data);
+        onMessage(msg);
+      } catch (err) {
+        console.error("MQTT parse error", err);
+      }
+    };
+    return () => ws.close();
+  } catch (error) {
+    console.error("subscribeDeviceRealtime failed", error);
+    return () => {};
+  }
+}
+
 function redirectToLogin() {
   window.location.pathname = "/";
 }
