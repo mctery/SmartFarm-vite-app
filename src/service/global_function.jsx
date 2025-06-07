@@ -79,6 +79,5 @@ export async function SysRegister(name, surname, email, password) {
 }
 
 function redirectToLogin() {
-  window.location.pathname = "/login";
+  window.location.pathname = "/";
 }
-
