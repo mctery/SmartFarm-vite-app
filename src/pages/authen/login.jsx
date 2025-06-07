@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import {
   Button,
@@ -10,7 +10,7 @@ import {
   Box,
 } from "@mui/material";
 import { SnackbarProvider, useSnackbar } from 'notistack';
-import { SysLogin } from "../../service/global_function";
+import { SysLogin, SysCheckToken } from "../../service/global_function";
 import { styled } from "@mui/system";
 import backgroundImage from "../../assets/farm_background.png";
 
@@ -36,6 +36,21 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const { enqueueSnackbar } = useSnackbar();
+
+  useEffect(() => {
+    const autoLogin = async () => {
+      const token = localStorage.getItem("x-token");
+      if (token) {
+        const valid = await SysCheckToken({ redirect: false });
+        if (valid) {
+          enqueueSnackbar("เข้าสู่ระบบอัตโนมัติ...", { variant: "info" });
+          navigate("/dashboard");
+        }
+      }
+    };
+
+    autoLogin();
+  }, [navigate, enqueueSnackbar]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
