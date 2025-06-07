@@ -1,36 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import {
-  Button,
-  TextField,
-  Container,
-  Paper,
-  Typography,
-  Divider,
-  Box,
-} from "@mui/material";
-import { SnackbarProvider, useSnackbar } from 'notistack';
+import { Button, TextField, Typography, Divider } from "@mui/material";
+import { useSnackbar } from 'notistack';
 import { SysLogin, SysCheckToken } from "../../service/global_function";
-import { styled } from "@mui/system";
-import backgroundImage from "../../assets/farm_background.png";
-
-const StyledContainer = styled(Container)({
-  minHeight: "100vh",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  backgroundImage: `url(${backgroundImage})`,
-  backgroundSize: "cover",
-  backgroundPosition: "center",
-});
-
-const StyledPaper = styled(Paper)({
-  padding: "40px",
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  borderRadius: "15px",
-});
+import AuthLayout from "../../components/AuthLayout";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -74,10 +47,8 @@ const LoginPage = () => {
   };
 
   return (
-    <StyledContainer maxWidth={false}>
-      <Box sx={{ maxWidth: 400, width: "100%" }}>
-        <StyledPaper elevation={3}>
-          <Typography variant="h5" color="success" sx={{ mb: 2, fontWeight: "bold", }}>Smart Farm Login</Typography>
+    <AuthLayout>
+      <Typography variant="h5" color="success" sx={{ mb: 2, fontWeight: "bold", }}>Smart Farm Login</Typography>
           <Divider sx={{ width: "100%", mb: 2}} />
           <form onSubmit={handleSubmit} style={{ width: "100%" }}>
             <TextField
@@ -134,9 +105,7 @@ const LoginPage = () => {
           >
             Welcome to Smart Farm Management System
           </Typography>
-        </StyledPaper>
-      </Box>
-    </StyledContainer>
+    </AuthLayout>
   );
 };
 

@@ -1,37 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import {
-  Button,
-  TextField,
-  Container,
-  Paper,
-  Typography,
-  Divider,
-  Box,
-} from "@mui/material";
+import { Button, TextField, Typography, Divider, Box } from "@mui/material";
 import { useSnackbar } from 'notistack';
 import { SysRegister } from "../../service/global_function";
-import { styled } from "@mui/system";
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-import backgroundImage from "../../assets/farm_background.png";
-
-const StyledContainer = styled(Container)({
-  minHeight: "100vh",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  backgroundImage: `url(${backgroundImage})`,
-  backgroundSize: "cover",
-  backgroundPosition: "center",
-});
-
-const StyledPaper = styled(Paper)({
-  padding: "40px",
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  borderRadius: "15px",
-});
+import AuthLayout from "../../components/AuthLayout";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -97,23 +70,21 @@ const RegisterPage = () => {
   ];
 
   return (
-    <StyledContainer maxWidth={false}>
-      <Box sx={{ maxWidth: 400, width: "100%" }}>
-        <StyledPaper elevation={3}>
-          <Box sx={{ display: "flex", justifyContent: "space-between", width: "100%", mb: 2 }}>
-            <Button
-              variant="text"
-              startIcon={<ArrowBackIosNewIcon />}
-              color="success"
-              onClick={() => navigate("/")}
-              sx={{ textTransform: "none" }}
-            >
-              กลับ
-            </Button>
-            <Typography variant="h5" color="success" sx={{ fontWeight: "bold" }}>
-              Smart Farm Register
-            </Typography>
-          </Box>
+    <AuthLayout>
+      <Box sx={{ display: "flex", justifyContent: "space-between", width: "100%", mb: 2 }}>
+          <Button
+            variant="text"
+            startIcon={<ArrowBackIosNewIcon />}
+            color="success"
+            onClick={() => navigate("/")}
+            sx={{ textTransform: "none" }}
+          >
+            กลับ
+          </Button>
+          <Typography variant="h5" color="success" sx={{ fontWeight: "bold" }}>
+            Smart Farm Register
+          </Typography>
+        </Box>
 
           <Divider sx={{ width: "100%", mb: 2 }} />
 
@@ -160,9 +131,7 @@ const RegisterPage = () => {
           <Typography variant="body2" color="textSecondary" align="center" sx={{ mt: 2 }}>
             Welcome to Smart Farm Management System
           </Typography>
-        </StyledPaper>
-      </Box>
-    </StyledContainer>
+    </AuthLayout>
   );
 };
 
