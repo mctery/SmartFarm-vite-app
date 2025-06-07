@@ -11,6 +11,7 @@ import RegisterPage from "./pages/authen/register";
 import DashboardPage from "./pages/DashboardPage";
 import AboutPage from "./pages/AboutPage";
 import HelpPage from "./pages/HelpPage";
+import FarmControlSystem from "./pages/FarmControlSystem";
 import PageNotFound from "./pages/PageNotFound";
 
 const router = createBrowserRouter([
@@ -41,6 +42,10 @@ const router = createBrowserRouter([
           {
             path: 'help',
             Component: HelpPage,
+          },
+          {
+            path: 'farm_control_system',
+            Component: FarmControlSystem,
           },
         ],
       },
