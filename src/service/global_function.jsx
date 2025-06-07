@@ -3,8 +3,15 @@ import axios from "axios";
 const API_BASE = import.meta.env.VITE_API;
 const apiClient = axios.create({ baseURL: API_BASE });
 
-export async function SysCheckToken() {
+export async function SysCheckToken(options = { redirect: true }) {
   const token = localStorage.getItem("x-token");
+
+  if (!token) {
+    if (options.redirect) {
+      redirectToLogin();
+    }
+    return false;
+  }
 
   try {
     const { data } = await apiClient.post("/api/users/token", { token });
@@ -12,11 +19,15 @@ export async function SysCheckToken() {
       return true;
     }
 
-    redirectToLogin();
+    if (options.redirect) {
+      redirectToLogin();
+    }
     return false;
   } catch (error) {
     console.error("Token check failed:", error);
-    redirectToLogin();
+    if (options.redirect) {
+      redirectToLogin();
+    }
     return false;
   }
 }
