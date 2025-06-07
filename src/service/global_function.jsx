@@ -1,12 +1,13 @@
 import axios from "axios";
 
 const API_BASE = import.meta.env.VITE_API;
+const apiClient = axios.create({ baseURL: API_BASE });
 
 export async function SysCheckToken() {
   const token = localStorage.getItem("x-token");
 
   try {
-    const { data } = await axios.post(`${API_BASE}/api/users/token`, { token });
+    const { data } = await apiClient.post("/api/users/token", { token });
     if (data.message === "OK") {
       return true;
     }
@@ -28,25 +29,18 @@ export function SysSignout() {
 
 export async function SysLogin(username, password) {
   try {
-    let res = await axios
-      .post(`${API_BASE}/api/users/login`, {
-        email: username,
-        password: password,
-      })
-      .then(async (res) => {
-        let ds = res.data;
-        if (ds.message === "OK") {
-          localStorage.setItem("x-token", ds.token);
-          localStorage.setItem("user_info", JSON.stringify(ds.data));
-          return ds.data;
-        } else {
-          return false;
-        }
-      })
-      .catch((err) => {
-        console.error("Login error:", err);
-      });
-    return res;
+    const { data } = await apiClient.post("/api/users/login", {
+      email: username,
+      password,
+    });
+
+    if (data.message === "OK") {
+      localStorage.setItem("x-token", data.token);
+      localStorage.setItem("user_info", JSON.stringify(data.data));
+      return data.data;
+    }
+
+    return false;
   } catch (error) {
     console.error("Login failed:", error);
     throw error;
@@ -55,25 +49,18 @@ export async function SysLogin(username, password) {
 
 export async function SysRegister(name, surname, email, password) {
   try {
-    const res = await axios
-      .post(`${API_BASE}/api/users/register`, {
-        first_name: name,
-        last_name: surname,
-        email: email,
-        password: password,
-      })
-      .then(async (res) => {
-        let ds = res.data;
-        if (ds.message === "OK") {
-          return ds.data;
-        } else {
-          return false;
-        }
-      })
-      .catch((err) => {
-        console.error("Registration error:", err);
-      });
-    return res;
+    const { data } = await apiClient.post("/api/users/register", {
+      first_name: name,
+      last_name: surname,
+      email,
+      password,
+    });
+
+    if (data.message === "OK") {
+      return data.data;
+    }
+
+    return false;
   } catch (error) {
     console.error("Register failed:", error);
     throw error;
@@ -83,3 +70,4 @@ export async function SysRegister(name, surname, email, password) {
 function redirectToLogin() {
   window.location.pathname = "/login";
 }
+
