@@ -1,26 +1,62 @@
 import { Box, Button, Container, Typography } from "@mui/material";
+import { styled } from "@mui/system";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { useNavigate } from "react-router";
+import backgroundImage from "../assets/farm_background.png";
 
 export default function PageNotFound() {
   const navigate = useNavigate();
 
   return (
-    <Container>
+    <StyledContainer maxWidth={false}>
       <Box
         sx={{
+          bgcolor: "rgba(255,255,255,0.85)",
+          p: 5,
+          borderRadius: 2,
+          textAlign: "center",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          minHeight: "100vh",
-          textAlign: "center",
         }}
       >
-        <Typography variant="h1" color="primary" gutterBottom>404</Typography>
-        <Typography variant="h5" color="text.secondary" paragraph>Sorry, page not found!</Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>The page you're looking for doesn't exist or has been moved.</Typography>
-        <Button variant="contained" onClick={() => navigate("/")}>กลับหน้าหลัก</Button>
+        <ErrorOutlineIcon sx={{ fontSize: 80, color: "error.main", mb: 1 }} />
+        <Typography variant="h2" color="error" gutterBottom sx={{ fontWeight: "bold" }}>
+          404
+        </Typography>
+        <Typography variant="h5" color="text.secondary" paragraph>
+          Sorry, page not found!
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          The page you're looking for doesn't exist or has been moved.
+        </Typography>
+        <Button
+          variant="contained"
+          color="success"
+          onClick={() => {
+            if (window.history.length > 2) {
+              navigate(-1);
+            } else {
+              const token = localStorage.getItem("x-token");
+              navigate(token ? "/dashboard" : "/");
+            }
+          }}
+        >
+          กลับหน้าหลัก
+        </Button>
       </Box>
-    </Container>
+    </StyledContainer>
   );
 }
+
+const StyledContainer = styled(Container)({
+  minHeight: "100vh",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  backgroundImage: `url(${backgroundImage})`,
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+});
+
