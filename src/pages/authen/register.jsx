@@ -9,7 +9,7 @@ import {
   Divider,
   Box,
 } from "@mui/material";
-import { SnackbarProvider, useSnackbar } from 'notistack';
+import { useSnackbar } from 'notistack';
 import { SysRegister } from "../../service/global_function";
 import { styled } from "@mui/system";
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
@@ -166,10 +166,4 @@ const RegisterPage = () => {
   );
 };
 
-export default function RegisterPageWithSnackbar() {
-  return (
-    <SnackbarProvider maxSnack={3}>
-      <RegisterPage />
-    </SnackbarProvider>
-  );
-}
+export default RegisterPage;
