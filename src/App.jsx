@@ -31,7 +31,8 @@ export default function App() {
         branding={{
           logo: <img src="./logo.png" alt="logo" />,
           title: "Smart Chu Farm",
-          homeUrl: "/toolpad/core/introduction",
+          homeUrl: "/dashboard",
+          description: "Smart Chu Farm - A Smart Farming Solution",
         }}
       >
         <Outlet />
