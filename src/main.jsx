@@ -10,6 +10,7 @@ import RegisterPage from "./pages/authen/register";
 
 import DashboardPage from "./pages/DashboardPage";
 import AboutPage from "./pages/AboutPage";
+import HelpPage from "./pages/HelpPage";
 import PageNotFound from "./pages/PageNotFound";
 
 const router = createBrowserRouter([
@@ -35,6 +36,10 @@ const router = createBrowserRouter([
           {
             path: "about",
             Component: () => <AboutPage/>,
+          },
+          {
+            path: "help",
+            Component: () => <HelpPage/>,
           },
         ],
       },

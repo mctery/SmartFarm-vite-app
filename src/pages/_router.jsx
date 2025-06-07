@@ -4,6 +4,7 @@ import FiberSmartRecordIcon from "@mui/icons-material/FiberSmartRecord";
 import AgricultureIcon from "@mui/icons-material/Agriculture";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 import SettingsIcon from "@mui/icons-material/Settings";
+import ContactSupportIcon from "@mui/icons-material/ContactSupport";
 
 export const NAVIGATION = [
   {
@@ -41,6 +42,11 @@ export const NAVIGATION = [
     segment: "about",
     title: "เกี่ยวกับ",
     icon: <AssignmentIndIcon />,
+  },
+  {
+    segment: "help",
+    title: "คู่มือการใช้งาน",
+    icon: <ContactSupportIcon />,
   },
   {
     segment: "settings",
