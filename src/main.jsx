@@ -15,36 +15,40 @@ import PageNotFound from "./pages/PageNotFound";
 
 const router = createBrowserRouter([
   {
+    path: '/',
     Component: App,
+    errorElement: <PageNotFound />, 
     children: [
       {
-        path: "/",
-        Component: () => <LoginPage/>,
+        index: true,
+        Component: LoginPage,
       },
       {
-        path: "/register",
-        Component: () => <RegisterPage/>,
+        path: 'register',
+        Component: RegisterPage,
       },
       {
-        path: "/",
         Component: Layout,
         children: [
           {
-            path: "dashboard",
-            Component: () => <DashboardPage/>,
+            path: 'dashboard',
+            Component: DashboardPage,
           },
           {
-            path: "about",
-            Component: () => <AboutPage/>,
+            path: 'about',
+            Component: AboutPage,
           },
           {
-            path: "help",
-            Component: () => <HelpPage/>,
+            path: 'help',
+            Component: HelpPage,
           },
         ],
       },
+      {
+        path: '*',
+        Component: PageNotFound,
+      },
     ],
-    // errorElement: <PageNotFound />,
   },
 ]);
 ReactDOM.createRoot(document.getElementById("root")).render(
