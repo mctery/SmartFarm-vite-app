@@ -31,7 +31,20 @@ export default function PageNotFound() {
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
           The page you're looking for doesn't exist or has been moved.
         </Typography>
-        <Button variant="contained" color="success" onClick={() => navigate("/")}>กลับหน้าหลัก</Button>
+        <Button
+          variant="contained"
+          color="success"
+          onClick={() => {
+            if (window.history.length > 2) {
+              navigate(-1);
+            } else {
+              const token = localStorage.getItem("x-token");
+              navigate(token ? "/dashboard" : "/");
+            }
+          }}
+        >
+          กลับหน้าหลัก
+        </Button>
       </Box>
     </StyledContainer>
   );
