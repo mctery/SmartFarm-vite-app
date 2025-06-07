@@ -1,30 +1,29 @@
-import { Box, Button, Container, Typography } from "@mui/material";
-import { styled } from "@mui/system";
+import { Box, Button, Typography } from "@mui/material";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { useNavigate } from "react-router";
-import backgroundImage from "../assets/farm_background.png";
+import AuthLayout from "../components/AuthLayout";
 
 export default function PageNotFound() {
   const navigate = useNavigate();
 
   return (
-    <StyledContainer maxWidth={false}>
-      <Box
-        sx={{
-          bgcolor: "rgba(255,255,255,0.85)",
-          p: 5,
-          borderRadius: 2,
-          textAlign: "center",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <ErrorOutlineIcon sx={{ fontSize: 80, color: "error.main", mb: 1 }} />
-        <Typography variant="h2" color="error" gutterBottom sx={{ fontWeight: "bold" }}>
-          404
-        </Typography>
+    <AuthLayout
+      maxWidth={null}
+      paperSx={{
+        bgcolor: "rgba(255,255,255,0.85)",
+        p: 5,
+        borderRadius: 2,
+        textAlign: "center",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <ErrorOutlineIcon sx={{ fontSize: 80, color: "error.main", mb: 1 }} />
+      <Typography variant="h2" color="error" gutterBottom sx={{ fontWeight: "bold" }}>
+        404
+      </Typography>
         <Typography variant="h5" color="text.secondary" paragraph>
           Sorry, page not found!
         </Typography>
@@ -43,20 +42,9 @@ export default function PageNotFound() {
             }
           }}
         >
-          กลับหน้าหลัก
-        </Button>
-      </Box>
-    </StyledContainer>
+        กลับหน้าหลัก
+      </Button>
+    </AuthLayout>
   );
 }
-
-const StyledContainer = styled(Container)({
-  minHeight: "100vh",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  backgroundImage: `url(${backgroundImage})`,
-  backgroundSize: "cover",
-  backgroundPosition: "center",
-});
 
