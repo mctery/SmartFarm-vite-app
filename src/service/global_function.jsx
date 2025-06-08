@@ -82,7 +82,7 @@ export async function SysGetDevices() {
   try {
     const token = localStorage.getItem("x-token");
     const { data } = await apiClient.get("/api/devices", {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `${token}` },
     });
     if (data.message === "OK") {
       return data.data;
@@ -98,7 +98,7 @@ export async function SysCreateDevice(payload) {
   try {
     const token = localStorage.getItem("x-token");
     const { data } = await apiClient.post("/api/devices", payload, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `${token}` },
     });
     return data.message === "OK" ? data.data : null;
   } catch (error) {
@@ -111,7 +111,7 @@ export async function SysUpdateDevice(id, payload) {
   try {
     const token = localStorage.getItem("x-token");
     const { data } = await apiClient.put(`/api/devices/${id}`, payload, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `${token}` },
     });
     return data.message === "OK" ? data.data : null;
   } catch (error) {
@@ -124,7 +124,7 @@ export async function SysDeleteDevice(id) {
   try {
     const token = localStorage.getItem("x-token");
     const { data } = await apiClient.delete(`/api/devices/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `${token}` },
     });
     return data.message === "OK";
   } catch (error) {

@@ -17,8 +17,8 @@ function ToolbarActionsWithLogout() {
   return (
     <Stack direction="row" alignItems="center" spacing={1}>
       <ThemeSwitcher />
-      <Button variant="outlined" size="small" onClick={handleLogout}>
-        Logout
+      <Button variant="outlined" color='error' size="small" onClick={handleLogout}>
+        ออกจากระบบ
       </Button>
     </Stack>
   );
