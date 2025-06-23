@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import { useState, useEffect, useRef } from "react";
+import { STYLES } from "../service/global_variable";
 import {
   Dialog,
   DialogTitle,
@@ -23,21 +24,23 @@ export default function DeviceFormDialog({
   onSubmit,
   initialData = {},
   variant = "dialog",
+  currentUserId // ← 👈 optional, you can inject user_id here
 }) {
   const [formData, setFormData] = useState({
     device_id: "",
-    device_image: "",
+    image: "",
     name: "",
     status: false,
   });
+
   const fileInputRef = useRef(null);
 
   useEffect(() => {
     setFormData({
       device_id: initialData.device_id || "",
-      device_image: initialData.device_image || "",
+      image: initialData.image || "",
       name: initialData.name || "",
-      status: typeof initialData.status === "boolean" ? initialData.status : false,
+      status: initialData.status === "A", // ← 👈 convert string to boolean
     });
   }, [initialData]);
 
@@ -54,29 +57,36 @@ export default function DeviceFormDialog({
     if (!file) return;
     const reader = new FileReader();
     reader.onloadend = () => {
-      setFormData((prev) => ({ ...prev, device_image: reader.result }));
+      setFormData((prev) => ({ ...prev, image: reader.result }));
     };
     reader.readAsDataURL(file);
   };
 
   const triggerFileSelect = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
+    fileInputRef.current?.click();
   };
 
   const handleSubmit = () => {
-    onSubmit(formData);
+    const payload = {
+      ...formData,
+      status: formData.status ? "A" : "D", // 👈 convert boolean to string
+    };
+
+    // inject user_id if needed
+    if (!initialData.device_id && currentUserId) {
+      payload.user_id = currentUserId.toString();
+    }
+
+    onSubmit(payload);
   };
 
   const formFields = (
     <>
-      <TextField size="small" margin="dense" label="Device ID" name="device_id" value={formData.device_id} onChange={handleChange} fullWidth/>
+      <TextField size="small" margin="dense" label="Device ID" name="device_id" value={formData.device_id} onChange={handleChange} fullWidth disabled={!!initialData.device_id}/>
       <TextField size="small" margin="dense" label="Name" name="name" value={formData.name} onChange={handleChange} fullWidth/>
       <FormControlLabel sx={{ width: '100%', mt: 1, mb: 1 }} control={ <Switch size="small" name="status" checked={formData.status} onChange={handleChange} color="primary"/> } label="เปิดใช้งาน"/>
       <Divider/>
-      {/* file upload */}
-      <Stack direction="column" alignItems="center" spacing={2} sx={{ mt: 2 }}>
+      <Stack direction="column" alignItems="center" spacing={2} sx={{ mb: 1 }}>
         <input
           type="file"
           accept="image/*"
@@ -85,12 +95,15 @@ export default function DeviceFormDialog({
           style={{ display: 'none' }}
         />
         <Button size="small" startIcon={<AddAPhotoIcon />} onClick={triggerFileSelect}>อัพโหลดรูปภาพอุปกรณ์</Button>
-        {
-          formData.device_image ?
-            <img src={formData.device_image || ''} width={200} height={200} alt="อุปกรณ์"/> : <img src="./no_image.jpg" width={200} height={200} alt="no_image"/>
-        }
+        <Box sx={{ overflow: 'hidden', width: 200, height: 200, borderRadius: STYLES.borderRadius }}>
+          {
+            formData.image ?
+              <img src={formData.image} width={200} height={200} alt="อุปกรณ์"/>
+              :
+              <img src="./no_image.jpg" width={200} height={200} alt="no_image"/>
+          }
+        </Box>
       </Stack>
-      {/* file upload */}
     </>
   );
 
@@ -131,4 +144,5 @@ DeviceFormDialog.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   initialData: PropTypes.object,
   variant: PropTypes.oneOf(["dialog", "drawer"]),
+  currentUserId: PropTypes.string, // 👈 new
 };

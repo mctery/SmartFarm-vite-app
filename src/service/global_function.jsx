@@ -156,3 +156,51 @@ export function subscribeDeviceRealtime(deviceId, onMessage) {
 function redirectToLogin() {
   window.location.pathname = "/";
 }
+
+// อ่านค่าจาก localStorage (คืน null ถ้าไม่พบ)
+export function getLocal(key) {
+  try {
+    const item = localStorage.getItem(key);
+    return item ? JSON.parse(item) : null;
+  } catch (err) {
+    console.error(`getLocal('${key}') failed:`, err);
+    return null;
+  }
+}
+
+// บันทึกค่าลง localStorage (แปลงเป็น JSON ก่อน)
+export function setLocal(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (err) {
+    console.error(`setLocal('${key}') failed:`, err);
+  }
+}
+
+// ลบ key ออกจาก localStorage
+export function removeLocal(key) {
+  try {
+    localStorage.removeItem(key);
+  } catch (err) {
+    console.error(`removeLocal('${key}') failed:`, err);
+  }
+}
+
+// ล้าง localStorage ทั้งหมด
+export function clearLocal() {
+  try {
+    localStorage.clear();
+  } catch (err) {
+    console.error("clearLocal() failed:", err);
+  }
+}
+
+// อ่าน token แบบ raw (กรณีต้องการ string ตรง ๆ)
+export function getToken() {
+  return localStorage.getItem("x-token") || null;
+}
+
+// อ่าน user info ที่เก็บไว้
+export function getUserInfo() {
+  return getLocal("user_info"); // เช่น { id, name, role, email }
+}

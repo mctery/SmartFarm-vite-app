@@ -57,10 +57,9 @@ export default function DeviceWidget({ device, onEdit, onDelete }) {
         <CellTowerIcon color="success" />
       </Box>
       <Card sx={cardStyle}>
-        {/* Uncomment if using image */}
-        {/* {device.image && (
-          <CardMedia component="img" height="140" image={device.image} alt={device.name} />
-        )} */}
+        {device.image && (
+          <CardMedia component="img" height="200" width="200" image={device.image} alt={device.name} />
+        )}
         <CardContent sx={{ pb: 0 }}>
           <Typography variant="h6" gutterBottom>{device.name}</Typography>
           <Typography variant="body2" color="text.secondary">ID: {device.device_id}</Typography>
