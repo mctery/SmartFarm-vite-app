@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -10,12 +10,8 @@ import {
   Box,
   Typography,
   TextField,
-  InputLabel,
-  Select,
-  MenuItem,
   Button,
   Switch,
-  FormControl,
   FormControlLabel,
   Stack,
 } from "@mui/material";
@@ -34,6 +30,7 @@ export default function DeviceFormDialog({
     name: "",
     status: false,
   });
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     setFormData({
@@ -52,6 +49,22 @@ export default function DeviceFormDialog({
     }));
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFormData((prev) => ({ ...prev, device_image: reader.result }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const triggerFileSelect = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
   const handleSubmit = () => {
     onSubmit(formData);
   };
@@ -64,8 +77,22 @@ export default function DeviceFormDialog({
       <Divider/>
       {/* file upload */}
       <Stack direction="column" alignItems="center" spacing={2} sx={{ mt: 2 }}>
-        <Button size="small" startIcon={<AddAPhotoIcon/>}>อัพโหลดรูปภาพอุปกรณ์</Button>
-        <img src={'./logo.png'} width={200} height={200} alt="อุปกรณ์" />
+        <input
+          type="file"
+          accept="image/*"
+          ref={fileInputRef}
+          onChange={handleImageChange}
+          style={{ display: 'none' }}
+        />
+        <Button size="small" startIcon={<AddAPhotoIcon />} onClick={triggerFileSelect}>
+          อัพโหลดรูปภาพอุปกรณ์
+        </Button>
+        <img
+          src={formData.device_image || './logo.png'}
+          width={200}
+          height={200}
+          alt="อุปกรณ์"
+        />
       </Stack>
       {/* file upload */}
     </>
