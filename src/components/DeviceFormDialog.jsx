@@ -67,6 +67,7 @@ export default function DeviceFormDialog({
         <Button size="small" startIcon={<AddAPhotoIcon/>}>อัพโหลดรูปภาพอุปกรณ์</Button>
         <img src={'./logo.png'} width={200} height={200} alt="อุปกรณ์" />
       </Stack>
+      {/* file upload */}
     </>
   );
 
