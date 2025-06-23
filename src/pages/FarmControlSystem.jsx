@@ -80,18 +80,14 @@ export default function FarmControlSystem() {
 
   return (
     <Container>
-      <Typography variant="h4" sx={{ mb: 2 }}>
-        ระบบควบคุมฟาร์ม
-      </Typography>
-      <Button variant="contained" sx={{ mb: 2 }} onClick={openAddDialog}>
-        เพิ่มอุปกรณ์
-      </Button>
+      <Typography variant="h4" sx={{ mb: 2 }}>ระบบควบคุมฟาร์ม</Typography>
+      <Button variant="contained" sx={{ mb: 2 }} onClick={openAddDialog}>เพิ่มอุปกรณ์</Button>
       {loading ? (
         <Typography>กำลังโหลดข้อมูล...</Typography>
       ) : (
         <Grid container spacing={2}>
           {devices.map((device) => (
-            <Grid item xs={12} sm={6} md={4} key={device.device_id || device.id || device._id}>
+            <Grid item size={4} xs={12} sm={6} md={4} key={device.device_id || device.id}>
               <DeviceWidget device={device} onEdit={handleEdit} onDelete={handleDelete} />
             </Grid>
           ))}

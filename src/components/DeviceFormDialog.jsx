@@ -6,13 +6,20 @@ import {
   DialogContent,
   DialogActions,
   Drawer,
+  Divider,
   Box,
   Typography,
   TextField,
+  InputLabel,
+  Select,
+  MenuItem,
   Button,
   Switch,
+  FormControl,
   FormControlLabel,
+  Stack,
 } from "@mui/material";
+import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
 
 export default function DeviceFormDialog({
   open,
@@ -23,6 +30,7 @@ export default function DeviceFormDialog({
 }) {
   const [formData, setFormData] = useState({
     device_id: "",
+    device_image: "",
     name: "",
     status: false,
   });
@@ -30,9 +38,9 @@ export default function DeviceFormDialog({
   useEffect(() => {
     setFormData({
       device_id: initialData.device_id || "",
+      device_image: initialData.device_image || "",
       name: initialData.name || "",
-      status:
-        typeof initialData.status === "boolean" ? initialData.status : false,
+      status: typeof initialData.status === "boolean" ? initialData.status : false,
     });
   }, [initialData]);
 
@@ -50,53 +58,32 @@ export default function DeviceFormDialog({
 
   const formFields = (
     <>
-      <TextField
-        margin="dense"
-        label="Device ID"
-        name="device_id"
-        value={formData.device_id}
-        onChange={handleChange}
-        fullWidth
-      />
-      <TextField
-        margin="dense"
-        label="Name"
-        name="name"
-        value={formData.name}
-        onChange={handleChange}
-        fullWidth
-      />
-      <FormControlLabel
-        control={
-          <Switch
-            name="status"
-            checked={formData.status}
-            onChange={handleChange}
-            color="primary"
-          />
-        }
-        label="เปิดใช้งาน"
-      />
+      <TextField size="small" margin="dense" label="Device ID" name="device_id" value={formData.device_id} onChange={handleChange} fullWidth/>
+      <TextField size="small" margin="dense" label="Name" name="name" value={formData.name} onChange={handleChange} fullWidth/>
+      <FormControlLabel sx={{ width: '100%', mt: 1, mb: 1 }} control={ <Switch size="small" name="status" checked={formData.status} onChange={handleChange} color="primary"/> } label="เปิดใช้งาน"/>
+      <Divider/>
+      {/* file upload */}
+      <Stack direction="column" alignItems="center" spacing={2} sx={{ mt: 2 }}>
+        <Button size="small" startIcon={<AddAPhotoIcon/>}>อัพโหลดรูปภาพอุปกรณ์</Button>
+        <img src={'./logo.png'} width={200} height={200} alt="อุปกรณ์" />
+      </Stack>
     </>
   );
 
   const actions = (
-    <Box sx={{ textAlign: 'right', mt: 2 }}>
-      <Button onClick={onClose} sx={{ mr: 1 }}>ยกเลิก</Button>
-      <Button onClick={handleSubmit} variant="contained">
-        บันทึก
-      </Button>
+    <Box sx={{ textAlign: "right", mt: 2 }}>
+      <Button size="small" onClick={onClose} sx={{ mr: 1 }} color="error">ยกเลิก</Button>
+      <Button size="small" onClick={handleSubmit} variant="contained" color="success">บันทึก</Button>
     </Box>
   );
 
-  if (variant === 'drawer') {
+  if (variant === "drawer") {
     return (
       <Drawer anchor="right" open={open} onClose={onClose}>
-        <Box sx={{ width: 320, p: 2 }} role="presentation">
-          <Typography variant="h6" gutterBottom>
-            {initialData.device_id ? 'แก้ไข' : 'เพิ่ม'}อุปกรณ์
-          </Typography>
+        <Box sx={{ width: 350, p: 2, paddingTop: 10 }} role="presentation">
+          <Typography variant="h6" gutterBottom>{initialData.device_id ? "แก้ไข" : "เพิ่ม"}อุปกรณ์</Typography>
           {formFields}
+          <Divider/>
           {actions}
         </Box>
       </Drawer>
@@ -105,7 +92,9 @@ export default function DeviceFormDialog({
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>{initialData.device_id ? 'แก้ไข' : 'เพิ่ม'}อุปกรณ์</DialogTitle>
+      <DialogTitle>
+        {initialData.device_id ? "แก้ไข" : "เพิ่ม"}อุปกรณ์
+      </DialogTitle>
       <DialogContent>{formFields}</DialogContent>
       <DialogActions>{actions}</DialogActions>
     </Dialog>
@@ -117,5 +106,5 @@ DeviceFormDialog.propTypes = {
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
   initialData: PropTypes.object,
-  variant: PropTypes.oneOf(['dialog', 'drawer']),
+  variant: PropTypes.oneOf(["dialog", "drawer"]),
 };
