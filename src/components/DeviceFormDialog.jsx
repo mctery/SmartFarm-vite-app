@@ -87,13 +87,7 @@ export default function DeviceFormDialog({
         <Button size="small" startIcon={<AddAPhotoIcon />} onClick={triggerFileSelect}>อัพโหลดรูปภาพอุปกรณ์</Button>
         {
           formData.device_image ?
-            <img
-              src={formData.device_image || ''}
-              width={200}
-              height={200}
-              alt="อุปกรณ์"
-            />
-            : <img src="./no_image.jpg" width={200} height={200} alt="no_image"/>
+            <img src={formData.device_image || ''} width={200} height={200} alt="อุปกรณ์"/> : <img src="./no_image.jpg" width={200} height={200} alt="no_image"/>
         }
       </Stack>
       {/* file upload */}
