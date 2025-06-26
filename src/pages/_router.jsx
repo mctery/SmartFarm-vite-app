@@ -5,6 +5,7 @@ import AgricultureIcon from "@mui/icons-material/Agriculture";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ContactSupportIcon from "@mui/icons-material/ContactSupport";
+import DevicesIcon from '@mui/icons-material/Devices';
 
 export const NAVIGATION = [
   {
@@ -30,6 +31,13 @@ export const NAVIGATION = [
     segment: "farm_control_system",
     title: "ระบบควบคุมฟาร์ม",
     icon: <AgricultureIcon />,
+    children: [
+      {
+        segment: "devices",
+        title: "อุปกรณ์",
+        icon: <DevicesIcon />,
+      },
+    ],
   },
   {
     kind: "divider",

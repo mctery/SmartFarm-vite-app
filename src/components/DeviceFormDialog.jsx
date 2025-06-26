@@ -24,7 +24,7 @@ export default function DeviceFormDialog({
   onSubmit,
   initialData = {},
   variant = "dialog",
-  currentUserId // ← 👈 optional, you can inject user_id here
+  currentUserId
 }) {
   const [formData, setFormData] = useState({
     device_id: "",
@@ -40,7 +40,7 @@ export default function DeviceFormDialog({
       device_id: initialData.device_id || "",
       image: initialData.image || "",
       name: initialData.name || "",
-      status: initialData.status === "A", // ← 👈 convert string to boolean
+      status: initialData.status === "A"
     });
   }, [initialData]);
 
@@ -67,12 +67,8 @@ export default function DeviceFormDialog({
   };
 
   const handleSubmit = () => {
-    const payload = {
-      ...formData,
-      status: formData.status ? "A" : "D", // 👈 convert boolean to string
-    };
+    const payload = { ...formData, status: formData.status ? "A" : "D" };
 
-    // inject user_id if needed
     if (!initialData.device_id && currentUserId) {
       payload.user_id = currentUserId.toString();
     }

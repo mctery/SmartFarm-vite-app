@@ -1,23 +1,26 @@
 import { useEffect, useState } from "react";
-import { Button, Container, Grid, Typography } from "@mui/material";
+import { Button, Container, Divider, Grid, Typography } from "@mui/material";
 import { useSnackbar } from 'notistack';
+import { useNavigate, Link } from "react-router";
 import {
   SysGetDevices,
   SysCreateDevice,
   SysUpdateDevice,
   SysDeleteDevice,
   getUserInfo
-} from "../service/global_function";
-import DeviceWidget from "../components/DeviceWidget";
-import DeviceFormDialog from "../components/DeviceFormDialog";
+} from "../../service/global_function";
+import DeviceWidget from "../../components/DeviceWidget";
+import DeviceFormDialog from "../../components/DeviceFormDialog";
+import DialogGridStack from "../../components/GridStack/DialogGridStack";
 
-export default function FarmControlSystem() {
+export default function FarmControlDevices() {
   const [devices, setDevices] = useState([]);
   const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState(true);
   const [addOpen, setAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [currentDevice, setCurrentDevice] = useState(null);
+  const navigate = useNavigate();
 
   const CURRENT_USER_ID = getUserInfo().user_id;
 
@@ -94,24 +97,28 @@ export default function FarmControlSystem() {
 
   return (
     <Container>
-      <Typography variant="h4" sx={{ mb: 2 }}>
-        ระบบควบคุมฟาร์ม
-      </Typography>
-      <Button variant="contained" sx={{ mb: 2 }} onClick={openAddDialog}>
-        เพิ่มอุปกรณ์
-      </Button>
+      <Typography variant="h4" sx={{ mb: 2 }}>ระบบควบคุมฟาร์ม</Typography>
+      <Button variant="contained" sx={{ mb: 2 }} onClick={openAddDialog}>เพิ่มอุปกรณ์</Button>
 
       {loading ? (
         <Typography>กำลังโหลดข้อมูล...</Typography>
       ) : (
         <Grid container spacing={2}>
-          {devices.map((device) => (
-            <Grid item size={4} key={device.device_id}>
+          {devices.map((item) => (
+            <Grid item xs={12} sm={6} md={4} key={item.device_id}>
               <DeviceWidget
-                device={device}
+                device={item}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
               />
+              <Divider sx={{ my: 2 }} />
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => navigate(`gridstack/${item.device_id}`)}
+              >
+                ดูข้อมูลแบบ GridStack
+              </Button>
             </Grid>
           ))}
         </Grid>

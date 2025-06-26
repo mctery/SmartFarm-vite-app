@@ -1,5 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom/client";
+import "gridstack/dist/gridstack.min.css";
 import { createBrowserRouter, RouterProvider } from "react-router";
 
 import App from "./App";
@@ -11,46 +12,62 @@ import RegisterPage from "./pages/authen/register";
 import DashboardPage from "./pages/DashboardPage";
 import AboutPage from "./pages/AboutPage";
 import HelpPage from "./pages/HelpPage";
-import FarmControlSystem from "./pages/FarmControlSystem";
+
+import FarmControlDevices from "./pages/farm/FarmControlDevices";
+import FarmGridStackOverview from "./pages/farm/FarmGridStackOverview";
+
 import PageNotFound from "./pages/PageNotFound";
 
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: "/",
     Component: App,
-    errorElement: <PageNotFound />, 
+    errorElement: <PageNotFound />,
     children: [
       {
         index: true,
         Component: LoginPage,
       },
       {
-        path: 'register',
+        path: "register",
         Component: RegisterPage,
       },
       {
         Component: Layout,
         children: [
           {
-            path: 'dashboard',
+            path: "dashboard",
             Component: DashboardPage,
           },
           {
-            path: 'about',
+            path: "about",
             Component: AboutPage,
           },
           {
-            path: 'help',
+            path: "help",
             Component: HelpPage,
           },
           {
-            path: 'farm_control_system',
-            Component: FarmControlSystem,
+            path: "farm_control_system",
+            children: [
+              {
+                // index: true,
+                path: "devices",
+                Component: FarmControlDevices,
+                children: [
+                  {
+                    // index: true,
+                    path: "gridstack/:deviceId",
+                    Component: FarmGridStackOverview,
+                  },
+                ]
+              },
+            ],
           },
         ],
       },
       {
-        path: '*',
+        path: "*",
         Component: PageNotFound,
       },
     ],

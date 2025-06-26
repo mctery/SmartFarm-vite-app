@@ -4,29 +4,34 @@ import {
   Card,
   CardMedia,
   CardContent,
+  CardHeader,
   Typography,
   CardActions,
   IconButton,
   Chip,
   Stack,
   Box,
-  useTheme
+  useTheme,
+  Divider,
 } from "@mui/material";
+
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CellTowerIcon from "@mui/icons-material/CellTower";
+import GridOnIcon from '@mui/icons-material/GridOn';
+
 import { subscribeDeviceRealtime } from "../service/global_function";
+import { STYLES } from "../service/global_variable";
 
 export default function DeviceWidget({ device, onEdit, onDelete }) {
   const [realtime, setRealtime] = useState(null);
   const theme = useTheme();
-
-  useEffect(() => {
-    const unsubscribe = subscribeDeviceRealtime(device.device_id, (msg) => {
-      setRealtime(msg);
-    });
-    return unsubscribe;
-  }, [device.device_id]);
+  // useEffect(() => {
+  //   const unsubscribe = subscribeDeviceRealtime(device.device_id, (msg) => {
+  //     setRealtime(msg);
+  //   });
+  //   return unsubscribe;
+  // }, [device.device_id]);
 
   const signalIconBox = {
     position: "absolute",
@@ -57,13 +62,34 @@ export default function DeviceWidget({ device, onEdit, onDelete }) {
         <CellTowerIcon color="success" />
       </Box>
       <Card sx={cardStyle}>
-        {device.image && (
-          <CardMedia component="img" height="200" width="200" image={device.image} alt={device.name} />
-        )}
+        <CardHeader
+          title={device.name}
+          subheader={`Device ID: ${device.device_id}`}
+          sx={{ backgroundColor: theme.palette.success.main }}
+          action={
+            device.online_status && (
+              <Chip
+                label={device.online_status === "A" ? "ออนไลน์" : "ออฟไลน์"}
+                color={device.online_status === "A" ? "success" : "default"}
+                size="small"
+              />
+            )
+          }
+        />
         <CardContent sx={{ pb: 0 }}>
-          <Typography variant="h6" gutterBottom>{device.name}</Typography>
-          <Typography variant="body2" color="text.secondary">ID: {device.device_id}</Typography>
-
+          <Box sx={{ display: "flex", width: '100%', alignItems: "center", justifyContent: "center" }}>
+            {device.image && (
+              <Box sx={{ width: 200, height: 200, overflow: "hidden", borderRadius: STYLES.borderRadius }}>
+                <CardMedia
+                  component="img"
+                  image={device.image}
+                  alt={device.name}
+                  width={200}
+                  height={200}
+                />
+              </Box>
+            )}
+          </Box>
           {device.status && (
             <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 1 }}>
               <Typography variant="body2">สถานะ:</Typography>
@@ -74,15 +100,12 @@ export default function DeviceWidget({ device, onEdit, onDelete }) {
               />
             </Stack>
           )}
+          <Divider sx={{ mt: 1 }}/>
         </CardContent>
-
-        <CardActions sx={{ mt: 1 }}>
-          <IconButton aria-label="edit" onClick={() => onEdit(device)} color="warning">
-            <EditIcon />
-          </IconButton>
-          <IconButton aria-label="delete" onClick={() => onDelete(device)} color="error">
-            <DeleteIcon />
-          </IconButton>
+        <CardActions>
+          <IconButton size="small" aria-label="edit" onClick={() => onEdit(device)} color="warning"><EditIcon /></IconButton>
+          <IconButton size="small" aria-label="delete" onClick={() => onDelete(device)} color="error"><DeleteIcon /></IconButton>
+          {/* <IconButton size="small" aria-label="gridstack" color="success"><GridOnIcon /></IconButton> */}
           {realtime && (
             <Typography variant="caption" sx={{ ml: 1 }} color="text.secondary" noWrap>
               {JSON.stringify(realtime)}
