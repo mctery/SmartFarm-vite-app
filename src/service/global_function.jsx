@@ -133,6 +133,30 @@ export async function SysDeleteDevice(id) {
   }
 }
 
+export async function SysGetDeviceSensors(deviceId) {
+  try {
+    const token = localStorage.getItem('x-token');
+    const { data } = await apiClient.get(`/device/${deviceId}`, {
+      headers: { Authorization: `${token}` },
+    });
+    if (Array.isArray(data.sensors)) {
+      return data.sensors;
+    }
+    if (data.data) {
+      if (Array.isArray(data.data.sensors)) {
+        return data.data.sensors;
+      }
+      if (Array.isArray(data.data)) {
+        return data.data;
+      }
+    }
+    return [];
+  } catch (error) {
+    console.error('SysGetDeviceSensors failed:', error);
+    return [];
+  }
+}
+
 export function subscribeDeviceRealtime(deviceId, onMessage) {
   try {
     const ws = new WebSocket(
