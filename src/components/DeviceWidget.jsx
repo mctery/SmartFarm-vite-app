@@ -18,7 +18,6 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CellTowerIcon from "@mui/icons-material/CellTower";
-import GridOnIcon from '@mui/icons-material/GridOn';
 
 import { subscribeDeviceRealtime } from "../service/global_function";
 import { STYLES } from "../service/global_variable";
@@ -26,12 +25,12 @@ import { STYLES } from "../service/global_variable";
 export default function DeviceWidget({ device, onEdit, onDelete }) {
   const [realtime, setRealtime] = useState(null);
   const theme = useTheme();
-  // useEffect(() => {
-  //   const unsubscribe = subscribeDeviceRealtime(device.device_id, (msg) => {
-  //     setRealtime(msg);
-  //   });
-  //   return unsubscribe;
-  // }, [device.device_id]);
+  useEffect(() => {
+    const unsubscribe = subscribeDeviceRealtime(device.device_id, (msg) => {
+      setRealtime(msg);
+    });
+    return unsubscribe;
+  }, [device.device_id]);
 
   const signalIconBox = {
     position: "absolute",
@@ -105,7 +104,6 @@ export default function DeviceWidget({ device, onEdit, onDelete }) {
         <CardActions>
           <IconButton size="small" aria-label="edit" onClick={() => onEdit(device)} color="warning"><EditIcon /></IconButton>
           <IconButton size="small" aria-label="delete" onClick={() => onDelete(device)} color="error"><DeleteIcon /></IconButton>
-          {/* <IconButton size="small" aria-label="gridstack" color="success"><GridOnIcon /></IconButton> */}
           {realtime && (
             <Typography variant="caption" sx={{ ml: 1 }} color="text.secondary" noWrap>
               {JSON.stringify(realtime)}
