@@ -65,7 +65,7 @@ export default function DeviceWidget({ device, onEdit, onDelete }) {
         <CardHeader
           title={device.name}
           subheader={`Device ID: ${device.device_id}`}
-          sx={{ backgroundColor: theme.palette.success.main }}
+          // sx={{ backgroundColor: theme.palette.success.main }}
           action={
             device.online_status && (
               <Chip

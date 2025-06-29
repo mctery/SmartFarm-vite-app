@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom/client";
 import "gridstack/dist/gridstack.min.css";
-import { createBrowserRouter, RouterProvider } from "react-router";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import App from "./App";
 import Layout from "./layouts/dashboard";
@@ -49,20 +49,27 @@ const router = createBrowserRouter([
           },
           {
             path: "farm_control_system",
-            children: [
-              {
-                // index: true,
-                path: "devices",
-                Component: FarmControlDevices,
-                children: [
-                  {
-                    // index: true,
-                    path: "gridstack/:deviceId",
-                    Component: FarmGridStackOverview,
-                  },
-                ]
-              },
-            ],
+            Component: FarmControlDevices,
+            // children: [
+            //   {
+            //     path: "devices",
+            //     Component: FarmControlDevices,
+            //     children: [
+            //       {
+            //         path: "gridstack/:deviceId",
+            //         Component: FarmGridStackOverview,
+            //       }
+            //     ]
+            //   },
+            // ]
+          },
+          {
+            path: "farm_control_system/devices",
+            Component: FarmControlDevices,
+          },
+          {
+            path: "farm_control_system/devices/gridstack/:deviceId",
+            Component: FarmGridStackOverview,
           },
         ],
       },

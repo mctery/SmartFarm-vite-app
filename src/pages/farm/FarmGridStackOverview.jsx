@@ -1,4 +1,4 @@
-import { useParams } from 'react-router';
+import { useParams } from 'react-router-dom';
 
 export default function FarmGridStackOverview() {
   const { deviceId } = useParams();

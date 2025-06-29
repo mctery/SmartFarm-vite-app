@@ -3,26 +3,49 @@ import { createTheme } from "@mui/material/styles";
 import { NAVIGATION } from "./pages/_router";
 import { ReactRouterAppProvider } from "@toolpad/core/react-router";
 import { Outlet } from "react-router";
-import { SnackbarProvider } from 'notistack';
+import { SnackbarProvider } from "notistack";
 
 const theme = createTheme({
-  colorSchemes: { light: true, dark: true },
-  cssVariables: {
-    colorSchemeSelector: "class",
+  palette: {
+    mode: "light",
+    primary: {
+      main: "#2E7D32", // ✅ สีเขียวสำหรับ navbar
+    },
+    background: {
+      default: "#F5F5F5", // ✅ สีเทาอ่อนสำหรับเนื้อหา (container)
+      paper: "#FFFFFF",   // ✅ พื้นหลัง component/card เป็นขาว
+    },
   },
-  breakpoints: {
-    values: {
-      xs: 0,
-      sm: 600,
-      md: 600,
-      lg: 1200,
-      xl: 1536,
+  components: {
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          backgroundColor: "#2E7D32", // ✅ Navbar สีเขียว
+          color: "#FFFFFF",
+        },
+      },
+    },
+    MuiDrawer: {
+      styleOverrides: {
+        paper: {
+          backgroundColor: "#FFFFFF", // ✅ Sidebar สีขาว
+          color: "#000000",
+        },
+      },
+    },
+    MuiContainer: {
+      styleOverrides: {
+        root: {
+          backgroundColor: "#F5F5F5", // ✅ สีเทาอ่อนใน main content
+          minHeight: "100vh",
+          padding: "16px",
+        },
+      },
     },
   },
 });
 
 export default function App() {
-
   return (
     <SnackbarProvider maxSnack={3}>
       <ReactRouterAppProvider

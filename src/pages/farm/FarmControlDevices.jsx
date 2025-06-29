@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button, Container, Divider, Grid, Typography } from "@mui/material";
 import { useSnackbar } from 'notistack';
-import { useNavigate, Link } from "react-router";
+import { Outlet, useNavigate } from "react-router-dom";
 import {
   SysGetDevices,
   SysCreateDevice,
@@ -112,13 +112,7 @@ export default function FarmControlDevices() {
                 onDelete={handleDelete}
               />
               <Divider sx={{ my: 2 }} />
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={() => navigate(`gridstack/${item.device_id}`)}
-              >
-                ดูข้อมูลแบบ GridStack
-              </Button>
+              <Button variant="outlined" size="small" onClick={() => navigate(`gridstack/${item.device_id}`)}>GridStack</Button>
             </Grid>
           ))}
         </Grid>
@@ -140,6 +134,7 @@ export default function FarmControlDevices() {
         variant="drawer"
         currentUserId={CURRENT_USER_ID}
       />
+      <Outlet />
     </Container>
   );
 }
