@@ -133,22 +133,31 @@ export async function SysDeleteDevice(id) {
   }
 }
 
-export async function SysGetDeviceSensors(deviceId) {
+// Sensor Functions
+export async function SysGetDeviceSensorsById(deviceId) {
   try {
     const token = localStorage.getItem('x-token');
-    const { data } = await apiClient.get(`/device/${deviceId}`, {
+    const { data } = await apiClient.get(`/api/sensors/device/${deviceId}`, {
       headers: { Authorization: `${token}` },
     });
-    if (Array.isArray(data.sensors)) {
-      return data.sensors;
+    if (Array.isArray(data)) {
+      return data[0];
     }
-    if (data.data) {
-      if (Array.isArray(data.data.sensors)) {
-        return data.data.sensors;
-      }
-      if (Array.isArray(data.data)) {
-        return data.data;
-      }
+    return [];
+  } catch (error) {
+    console.error('SysGetDeviceSensors failed:', error);
+    return [];
+  }
+}
+
+export async function SysUpdateDeviceSensors(id) {
+  try {
+    const token = localStorage.getItem('x-token');
+    const { data } = await apiClient.put(`/api/sensors/${id}`, {
+      headers: { Authorization: `${token}` },
+    });
+    if (Array.isArray(data)) {
+      return data[0];
     }
     return [];
   } catch (error) {

@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useEffect, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
 import {
   Box,
   Button,
@@ -8,50 +8,47 @@ import {
   Typography,
   Menu,
   MenuItem,
-} from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import EditIcon from '@mui/icons-material/Edit';
-import { GridStack } from 'gridstack';
-import 'gridstack/dist/gridstack.min.css';
-import DeviceSensors from '../../components/DeviceSensors';
+  Stack,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import EditIcon from "@mui/icons-material/Edit";
+import { GridStack } from "gridstack";
+import "gridstack/dist/gridstack.min.css";
+import DeviceSensors from "../../components/DeviceSensors";
 
 import {
   getWidgetLayout,
   saveWidgetLayout,
-} from '../../service/widget_service';
+  deleteWidgetLayout,
+} from "../../service/widget_service";
 import {
   subscribeDeviceRealtime,
-  SysGetDeviceSensors,
-} from '../../service/global_function';
+  SysGetDeviceSensorsById,
+} from "../../service/global_function";
 
 export default function FarmGridStackOverview() {
   const { deviceId } = useParams();
   const gridRef = useRef(null);
   const grid = useRef(null);
   const nextId = useRef(1);
+  const isSavingRef = useRef(false);
+
   const [widgets, setWidgets] = useState([]);
   const [realtime, setRealtime] = useState(null);
   const [sensors, setSensors] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const handleOpenMenu = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleCloseMenu = () => {
-    setAnchorEl(null);
-  };
+  const handleOpenMenu = (event) => setAnchorEl(event.currentTarget);
+  const handleCloseMenu = () => setAnchorEl(null);
 
   useEffect(() => {
-    const unsub = subscribeDeviceRealtime(deviceId, (msg) => {
-      setRealtime(msg);
-    });
+    const unsub = subscribeDeviceRealtime(deviceId, (msg) => setRealtime(msg));
     return unsub;
   }, [deviceId]);
 
   useEffect(() => {
     (async () => {
-      const list = await SysGetDeviceSensors(deviceId);
+      const list = await SysGetDeviceSensorsById(deviceId);
       setSensors(Array.isArray(list) ? list : []);
     })();
   }, [deviceId]);
@@ -67,118 +64,163 @@ export default function FarmGridStackOverview() {
 
   useEffect(() => {
     if (!gridRef.current) return;
-    if (grid.current) grid.current.destroy();
+
+    if (grid.current) {
+      grid.current.destroy(false);
+      grid.current = null;
+    }
+
     grid.current = GridStack.init(
-      { cellHeight: 100, float: true, margin: 5, disableOneColumnMode: true },
+      {
+        column: 5,
+        cellHeight: 200,
+        float: true,
+        margin: 5,
+        disableOneColumnMode: true,
+      },
       gridRef.current
     );
-    widgets.forEach((w) => addWidgetToGrid(w));
+
+    grid.current.on("resizestop dragstop", () => {
+      // Layout update deferred to manual save
+    });
+
     return () => {
-      grid.current && grid.current.destroy();
+      grid.current?.destroy(false);
+      grid.current = null;
     };
+  }, [deviceId]);
+
+  useEffect(() => {
+    if (!grid.current || isSavingRef.current) return;
+    grid.current.removeAll(true);
+    widgets.forEach(addWidgetToGrid);
   }, [widgets]);
 
   const addWidgetToGrid = (w) => {
     if (!grid.current) return;
-    const wrapper = document.createElement('div');
-    wrapper.classList.add('grid-stack-item');
-    wrapper.setAttribute('data-gs-id', w.id);
-    const contentDiv = document.createElement('div');
-    contentDiv.classList.add('grid-stack-item-content');
+
+    const wrapper = document.createElement("div");
+    wrapper.classList.add("grid-stack-item");
+    wrapper.setAttribute("gs-x", w.x);
+    wrapper.setAttribute("gs-y", w.y);
+    wrapper.setAttribute("gs-w", w.w);
+    wrapper.setAttribute("gs-h", w.h);
+    wrapper.setAttribute("gs-id", w.id);
+
+    const contentDiv = document.createElement("div");
+    contentDiv.classList.add("grid-stack-item-content");
     wrapper.appendChild(contentDiv);
-    grid.current.addWidget(wrapper, { x: w.x, y: w.y, w: w.w, h: w.h });
-    const Component = () => {
-      return (
-        <Paper sx={{ p: 1, position: 'relative', height: '100%' }}>
+    grid.current.makeWidget(wrapper);
+
+    import("react-dom/client").then((m) => {
+      const root = m.createRoot(contentDiv);
+      root.render(
+        <Paper sx={{ p: 1, position: "relative", height: "100%" }}>
           <IconButton
             size="small"
-            sx={{ position: 'absolute', top: 4, right: 4 }}
+            sx={{ position: "absolute", top: 4, right: 4 }}
             onClick={() => handleRemoveWidget(w.id)}
           >
             <CloseIcon fontSize="small" />
           </IconButton>
           <IconButton
             size="small"
-            sx={{ position: 'absolute', top: 4, right: 30 }}
+            sx={{ position: "absolute", top: 4, right: 30 }}
             onClick={() => handleEditWidget(w.id)}
           >
             <EditIcon fontSize="small" />
           </IconButton>
           <Typography variant="subtitle2">{w.title}</Typography>
-          {w.type === 'sensor' && realtime && w.sensorKey && (
+          {w.type === "sensor" && realtime && w.sensorKey && (
             <Typography variant="caption">
-              {`${w.title}: ${realtime[w.sensorKey] ?? ''}`}
+              {`${w.title}: ${realtime[w.sensorKey] ?? "ไม่มีข้อมูล"}`}
             </Typography>
           )}
-          {w.type === 'sensorGroup' && realtime && (
+          {w.type === "sensorGroup" && realtime && (
             <DeviceSensors data={realtime} />
           )}
         </Paper>
       );
-    };
-    // React 18 root render
-    import('react-dom/client').then((m) => {
-      const root = m.createRoot(contentDiv);
-      root.render(<Component />);
     });
   };
 
-  const handleAddSensor = async (sensor) => {
-    const payload = {
+  const handleUpdateLayout = async () => {
+    if (!grid.current) return;
+
+    // ✅ ดึง DOM elements ของทุก widget จาก GridStack container
+    const domNodes = grid.current.el.querySelectorAll(".grid-stack-item");
+
+    // ✅ สร้าง layout ใหม่ โดยอัปเดตตำแหน่งจาก gridstackNode ของแต่ละ element
+    const updated = widgets.map((w) => {
+      // 🔍 หา DOM element ที่มี gs-id ตรงกับ widget id
+      const el = Array.from(domNodes).find(
+        (el) => parseInt(el.getAttribute("gs-id")) === w.id
+      );
+
+      // 📦 gridstackNode เก็บข้อมูลตำแหน่งล่าสุดของ widget
+      const node = el?.gridstackNode;
+
+      // ✅ ถ้ามี node → อัปเดตตำแหน่งใหม่เข้า widget
+      return node ? { ...w, x: node.x, y: node.y, w: node.w, h: node.h } : w; // ❌ ถ้าไม่เจอ node → คืนค่าเดิมไว้
+    });
+
+    // 🧠 อัปเดต state ให้ React จำตำแหน่งใหม่
+    setWidgets(updated);
+
+    // 💾 ส่งไป backend เพื่อบันทึก layout
+    await saveWidgetLayout(deviceId, updated);
+  };
+
+  const handleAddWidget = (payload) => {
+    const newWidgets = [...widgets, payload];
+    setWidgets(newWidgets);
+    nextId.current += 1;
+    handleCloseMenu();
+  };
+
+  const handleAddSensor = (sensor) => {
+    handleAddWidget({
       id: nextId.current,
       x: 0,
       y: 0,
-      w: 4,
-      h: 2,
-      type: 'sensor',
-      title: sensor?.name || sensor?.title || 'Sensor Widget',
-      sensorKey: sensor?.name || sensor?.port || sensor?.id,
-    };
-    setWidgets((prev) => {
-      const newWidgets = [...prev, payload];
-      saveWidgetLayout(deviceId, newWidgets);
-      return newWidgets;
+      w: 1,
+      h: 1,
+      type: "sensor",
+      title: `${sensor.sensor_type} (${sensor.sensor_id})`,
+      sensorKey: sensor.sensor_id,
     });
-    nextId.current += 1;
-    handleCloseMenu();
   };
 
   const handleAddSensorGroup = () => {
-    const payload = {
+    handleAddWidget({
       id: nextId.current,
       x: 0,
       y: 0,
-      w: 4,
-      h: 3,
-      type: 'sensorGroup',
-      title: 'Sensors',
-    };
-    setWidgets((prev) => {
-      const newWidgets = [...prev, payload];
-      saveWidgetLayout(deviceId, newWidgets);
-      return newWidgets;
-    });
-    nextId.current += 1;
-    handleCloseMenu();
-  };
-
-
-  const handleRemoveWidget = async (id) => {
-    setWidgets((prev) => {
-      const newWidgets = prev.filter((w) => w.id !== id);
-      saveWidgetLayout(deviceId, newWidgets);
-      return newWidgets;
+      w: 1,
+      h: 1,
+      type: "sensorGroup",
+      title: "Sensors",
     });
   };
 
-  const handleEditWidget = async (id) => {
-    const title = window.prompt('Widget title');
+  const handleRemoveWidget = (id) => {
+    setWidgets((prev) => prev.filter((w) => w.id !== id));
+  };
+
+  const handleEditWidget = (id) => {
+    const title = window.prompt("เปลี่ยนชื่อ Widget:");
     if (title !== null) {
-      setWidgets((prev) => {
-        const newWidgets = prev.map((w) => (w.id === id ? { ...w, title } : w));
-        saveWidgetLayout(deviceId, newWidgets);
-        return newWidgets;
-      });
+      setWidgets((prev) =>
+        prev.map((w) => (w.id === id ? { ...w, title } : w))
+      );
+    }
+  };
+
+  const handleClearLayout = async () => {
+    if (window.confirm("ต้องการลบ Layout ทั้งหมด?")) {
+      await deleteWidgetLayout(deviceId);
+      setWidgets([]);
     }
   };
 
@@ -187,26 +229,48 @@ export default function FarmGridStackOverview() {
       <Typography variant="h6" sx={{ mb: 1 }}>
         อุปกรณ์: {deviceId}
       </Typography>
-      <Box sx={{ mb: 1 }}>
+
+      <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
         <Button onClick={handleOpenMenu} variant="contained" size="small">
           เพิ่ม Widget
         </Button>
-        <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleCloseMenu}>
-          <MenuItem onClick={handleAddSensorGroup}>เซนเซอร์ทั้งหมด</MenuItem>
-          {sensors.map((s) => (
-            <MenuItem
-              key={s.id || s.port || s.name}
-              onClick={() => {
-                handleAddSensor(s);
-                handleCloseMenu();
-              }}
-            >
-              {s.name || s.title || s.id}
-            </MenuItem>
-          ))}
-        </Menu>
-      </Box>
-      <Box sx={{ width: '100%', height: '80vh' }}>
+        <Button
+          onClick={handleUpdateLayout}
+          variant="contained"
+          color="info"
+          size="small"
+        >
+          บันทึก Layout
+        </Button>
+        <Button
+          onClick={handleClearLayout}
+          variant="outlined"
+          color="error"
+          size="small"
+        >
+          ลบ Layout ทั้งหมด
+        </Button>
+      </Stack>
+
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleCloseMenu}
+      >
+        <MenuItem onClick={handleAddSensorGroup}>เพิ่มทุก Sensors</MenuItem>
+        {sensors.map((item, index) => (
+          <MenuItem
+            key={`sensor-${index}`}
+            onClick={() => handleAddSensor(item)}
+          >
+            <Typography>
+              {item.sensor_type} - ID: {item.sensor_id}
+            </Typography>
+          </MenuItem>
+        ))}
+      </Menu>
+
+      <Box sx={{ width: "100%", height: "80vh" }}>
         <div className="grid-stack" ref={gridRef}></div>
       </Box>
     </Box>

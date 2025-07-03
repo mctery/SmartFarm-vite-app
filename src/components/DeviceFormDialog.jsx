@@ -17,6 +17,7 @@ import {
   Stack,
 } from "@mui/material";
 import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
+import NoImage from '../assets/no_image.jpg';
 
 export default function DeviceFormDialog({
   open,
@@ -28,9 +29,12 @@ export default function DeviceFormDialog({
 }) {
   const [formData, setFormData] = useState({
     device_id: "",
-    image: "",
     name: "",
+    image: "",
+    version: "1.0",
+    // online_status: false,
     status: false,
+    user_id: currentUserId || ""
   });
 
   const fileInputRef = useRef(null);
@@ -38,8 +42,10 @@ export default function DeviceFormDialog({
   useEffect(() => {
     setFormData({
       device_id: initialData.device_id || "",
-      image: initialData.image || "",
       name: initialData.name || "",
+      version: initialData.version || "",
+      // online_status: initialData.online_status || "",
+      image: initialData.image || "",
       status: initialData.status === "A"
     });
   }, [initialData]);
@@ -80,6 +86,8 @@ export default function DeviceFormDialog({
     <>
       <TextField size="small" margin="dense" label="Device ID" name="device_id" value={formData.device_id} onChange={handleChange} fullWidth disabled={!!initialData.device_id}/>
       <TextField size="small" margin="dense" label="Name" name="name" value={formData.name} onChange={handleChange} fullWidth/>
+      <TextField size="small" margin="dense" label="version" name="version" value={formData.version} onChange={handleChange} fullWidth/>
+      {/* <FormControlLabel sx={{ width: '100%', mt: 1, mb: 1 }} control={ <Switch size="small" name="online_status" checked={formData.online_status} onChange={handleChange} color="primary"/> } label="เปิดใช้งาน"/> */}
       <FormControlLabel sx={{ width: '100%', mt: 1, mb: 1 }} control={ <Switch size="small" name="status" checked={formData.status} onChange={handleChange} color="primary"/> } label="เปิดใช้งาน"/>
       <Divider/>
       <Stack direction="column" alignItems="center" spacing={2} sx={{ mb: 1 }}>
@@ -96,7 +104,7 @@ export default function DeviceFormDialog({
             formData.image ?
               <img src={formData.image} width={200} height={200} alt="อุปกรณ์"/>
               :
-              <img src="./no_image.jpg" width={200} height={200} alt="no_image"/>
+              <img src={NoImage} width={200} height={200} alt="no_image"/>
           }
         </Box>
       </Stack>

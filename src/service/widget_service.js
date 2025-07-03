@@ -21,24 +21,19 @@ export async function getWidgetLayout(deviceId) {
 }
 
 export async function saveWidgetLayout(deviceId, widgets) {
-  const token = localStorage.getItem('x-token');
   try {
-    await apiClient.post(`/api/sensorWidget/update/${deviceId}`, widgets, {
+    const token = localStorage.getItem('x-token');
+    const { data } = await apiClient.post(`/api/sensorWidget/update/${deviceId}`, widgets, {
       headers: { Authorization: `${token}` },
     });
-    return true;
-  } catch {
-    try {
-      await apiClient.post(
-        '/api/sensorWidget',
-        { device_id: deviceId, widget_json: JSON.stringify(widgets) },
-        { headers: { Authorization: `${token}` } },
-      );
-      return true;
-    } catch (err) {
-      console.error('saveWidgetLayout failed:', err);
-      return false;
+    if (Array.isArray(data) && data.length > 0) {
+      const layout = JSON.parse(data[0].widget_json || '[]');
+      return layout;
     }
+    return [];
+  } catch (error) {
+    console.error('saveWidgetLayout failed:', error);
+    return [];
   }
 }
 

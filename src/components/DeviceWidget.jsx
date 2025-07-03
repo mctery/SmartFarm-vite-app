@@ -14,10 +14,12 @@ import {
   useTheme,
   Divider,
 } from "@mui/material";
+import { Outlet, useNavigate } from "react-router-dom";
 
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CellTowerIcon from "@mui/icons-material/CellTower";
+import HomeIcon from '@mui/icons-material/Home';
 
 import { subscribeDeviceRealtime } from "../service/global_function";
 import { STYLES } from "../service/global_variable";
@@ -25,6 +27,8 @@ import { STYLES } from "../service/global_variable";
 export default function DeviceWidget({ device, onEdit, onDelete }) {
   const [realtime, setRealtime] = useState(null);
   const theme = useTheme();
+  const navigate = useNavigate();
+
   useEffect(() => {
     const unsubscribe = subscribeDeviceRealtime(device.device_id, (msg) => {
       setRealtime(msg);
@@ -104,6 +108,7 @@ export default function DeviceWidget({ device, onEdit, onDelete }) {
         <CardActions>
           <IconButton size="small" aria-label="edit" onClick={() => onEdit(device)} color="warning"><EditIcon /></IconButton>
           <IconButton size="small" aria-label="delete" onClick={() => onDelete(device)} color="error"><DeleteIcon /></IconButton>
+          <IconButton size="small" aria-label="gridstack" onClick={() => navigate(`gridstack/${device.device_id}`)} color="info"><HomeIcon /></IconButton>
           {realtime && (
             <Typography variant="caption" sx={{ ml: 1 }} color="text.secondary" noWrap>
               {JSON.stringify(realtime)}
