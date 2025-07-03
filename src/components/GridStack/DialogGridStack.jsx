@@ -1,7 +1,7 @@
 import ReactDOM from "react-dom/client";
 import PropTypes from "prop-types";
 import { useState, useEffect, useRef } from "react";
-import { STYLES } from "../../service/global_variable";
+import { STYLES } from "../../services/global_variable";
 import {
   Paper,
   IconButton,

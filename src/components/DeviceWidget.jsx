@@ -21,8 +21,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import CellTowerIcon from "@mui/icons-material/CellTower";
 import HomeIcon from '@mui/icons-material/Home';
 
-import { subscribeDeviceRealtime } from "../service/global_function";
-import { STYLES } from "../service/global_variable";
+import { subscribeDeviceRealtime } from "../services/global_function";
+import { STYLES } from "../services/global_variable";
 
 export default function DeviceWidget({ device, onEdit, onDelete }) {
   const [realtime, setRealtime] = useState(null);

@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { Button, Container, Divider, Grid, Typography } from "@mui/material";
 import { useSnackbar } from 'notistack';
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import {
   SysGetDevices,
   SysCreateDevice,
   SysUpdateDevice,
   SysDeleteDevice,
   getUserInfo
-} from "../../service/global_function";
+} from "../../services/global_function";
 import DeviceWidget from "../../components/DeviceWidget";
 import DeviceFormDialog from "../../components/DeviceFormDialog";
 import DialogGridStack from "../../components/GridStack/DialogGridStack";
@@ -20,7 +20,6 @@ export default function FarmControlDevices() {
   const [addOpen, setAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [currentDevice, setCurrentDevice] = useState(null);
-  // const navigate = useNavigate();
 
   const CURRENT_USER_ID = getUserInfo().user_id;
 

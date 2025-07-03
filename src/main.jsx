@@ -4,10 +4,10 @@ import "gridstack/dist/gridstack.min.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import App from "./App";
-import Layout from "./layouts/dashboard";
+import Layout from "./layouts/DashboardLayout";
 
-import LoginPage from "./pages/authen/login";
-import RegisterPage from "./pages/authen/register";
+import LoginPage from "./pages/auth/login";
+import RegisterPage from "./pages/auth/register";
 
 import DashboardPage from "./pages/DashboardPage";
 import AboutPage from "./pages/AboutPage";
