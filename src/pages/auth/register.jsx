@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { Button, TextField, Typography, Divider, Box } from "@mui/material";
 import { useSnackbar } from 'notistack';
-import { SysRegister } from "../../service/global_function";
+import { SysRegister } from "../../services/global_function";
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import AuthLayout from "../../components/AuthLayout";
 

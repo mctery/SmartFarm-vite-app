@@ -20,11 +20,11 @@ import {
   getWidgetLayout,
   saveWidgetLayout,
   deleteWidgetLayout,
-} from "../../service/widget_service";
+} from "../../services/widget_service";
 import {
   subscribeDeviceRealtime,
   SysGetDeviceSensorsById,
-} from "../../service/global_function";
+} from "../../services/global_function";
 
 export default function FarmGridStackOverview() {
   const { deviceId } = useParams();

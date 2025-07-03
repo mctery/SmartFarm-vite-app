@@ -5,7 +5,7 @@ import { PageContainer } from "@toolpad/core/PageContainer";
 import { Stack, Button } from "@mui/material";
 import { ThemeSwitcher } from "@toolpad/core/DashboardLayout";
 import { useSnackbar } from "notistack";
-import { SysSignout } from "../service/global_function";
+import { SysSignout } from "../services/global_function";
 
 function ToolbarActions() {
   const { enqueueSnackbar } = useSnackbar();
