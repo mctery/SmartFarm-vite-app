@@ -140,10 +140,7 @@ export async function SysGetDeviceSensorsById(deviceId) {
     const { data } = await apiClient.get(`/api/sensors/device/${deviceId}`, {
       headers: { Authorization: `${token}` },
     });
-    if (Array.isArray(data)) {
-      return data[0];
-    }
-    return [];
+    return data;
   } catch (error) {
     console.error('SysGetDeviceSensors failed:', error);
     return [];
@@ -156,10 +153,7 @@ export async function SysUpdateDeviceSensors(id) {
     const { data } = await apiClient.put(`/api/sensors/${id}`, {
       headers: { Authorization: `${token}` },
     });
-    if (Array.isArray(data)) {
-      return data[0];
-    }
-    return [];
+    return data;
   } catch (error) {
     console.error('SysGetDeviceSensors failed:', error);
     return [];

@@ -32,6 +32,7 @@ export default function AuthLayout({
   const { sx: wrapperSx = {}, ...otherWrapper } = wrapperProps;
   const { sx: contSx = {}, ...otherContainer } = containerProps;
   const { sx: pSx = {}, ...otherPaper } = paperProps;
+  
   return (
     <StyledContainer maxWidth={false} sx={contSx} {...otherContainer}>
       <Box
