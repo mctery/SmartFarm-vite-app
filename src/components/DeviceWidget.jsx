@@ -13,13 +13,14 @@ import {
   Box,
   useTheme,
   Divider,
+  Tooltip,
 } from "@mui/material";
 import { Outlet, useNavigate } from "react-router-dom";
 
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CellTowerIcon from "@mui/icons-material/CellTower";
-import HomeIcon from '@mui/icons-material/Home';
+import HomeIcon from "@mui/icons-material/Home";
 
 import { subscribeDeviceRealtime } from "../services/global_function";
 import { STYLES } from "../services/global_variable";
@@ -52,10 +53,10 @@ export default function DeviceWidget({ device, onEdit, onDelete }) {
   };
 
   const cardStyle = {
-    minHeight: 200,
-    // px: 2,
-    // pt: 2,
-    // pb: 1,
+    height: 390, // ✅ ความสูงคงที่
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between", // ✅ ช่วยจัดเนื้อหากระจายพอดี
     position: "relative",
   };
 
@@ -66,9 +67,21 @@ export default function DeviceWidget({ device, onEdit, onDelete }) {
       </Box>
       <Card sx={cardStyle}>
         <CardHeader
-          title={device.name}
-          subheader={`Device ID: ${device.device_id}`}
-          // sx={{ backgroundColor: theme.palette.success.main }}
+          title={
+            <Typography variant="h6" sx={{ color: "white" }}>
+              {device.name}
+            </Typography>
+          }
+          subheader={
+            <Typography variant="caption" sx={{ color: "white" }}>
+              รหัสอุปกรณ์: {device.device_id}
+            </Typography>
+          }
+          sx={{
+            backgroundColor: theme.palette.success.main,
+            px: 2,
+            py: 1.5,
+          }}
           action={
             device.online_status && (
               <Chip
@@ -79,42 +92,101 @@ export default function DeviceWidget({ device, onEdit, onDelete }) {
             )
           }
         />
-        <CardContent sx={{ pb: 0 }}>
-          <Box sx={{ display: "flex", width: '100%', alignItems: "center", justifyContent: "center" }}>
-            {device.image && (
-              <Box sx={{ width: 200, height: 200, overflow: "hidden", borderRadius: STYLES.borderRadius }}>
+
+        <CardContent sx={{ flexGrow: 1 }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: 200, // ✅ ให้ภาพอยู่ในขนาดคงที่
+            }}
+          >
+            {device.image ? (
+              <Box
+                sx={{
+                  width: 180,
+                  height: 180,
+                  overflow: "hidden",
+                  borderRadius: STYLES.borderRadius,
+                }}
+              >
                 <CardMedia
                   component="img"
                   image={device.image}
                   alt={device.name}
-                  width={200}
-                  height={200}
+                  sx={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
               </Box>
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                ไม่มีรูปภาพ
+              </Typography>
             )}
           </Box>
+
           {device.status && (
-            <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 1 }}>
-              <Typography variant="body2">สถานะ:</Typography>
+            <Stack
+              direction="row"
+              spacing={1}
+              alignItems="center"
+              sx={{ mt: 1 }}
+            >
+              <Typography variant="body2">สถานะการทำงาน:</Typography>
               <Chip
-                label={device.status === "A" ? "ปกติ" : "ปิด"}
+                label={device.status === "A" ? "เปิดใช้งาน" : "ปิดการใช้งาน"}
                 color={device.status === "A" ? "success" : "default"}
                 size="small"
               />
             </Stack>
           )}
-          <Divider sx={{ mt: 1 }}/>
+          <Divider sx={{ m: 1 }} />
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Tooltip title="แก้ไขอุปกรณ์">
+              <IconButton
+                size="small"
+                aria-label="edit"
+                onClick={() => onEdit(device)}
+                color="warning"
+              >
+                <EditIcon />
+              </IconButton>
+            </Tooltip>
+
+            <Tooltip title="ลบอุปกรณ์">
+              <IconButton
+                size="small"
+                aria-label="delete"
+                onClick={() => onDelete(device)}
+                color="error"
+              >
+                <DeleteIcon />
+              </IconButton>
+            </Tooltip>
+
+            <Tooltip title="ดูข้อมูลอุปกรณ์">
+              <IconButton
+                size="small"
+                aria-label="gridstack"
+                onClick={() => navigate(`gridstack/${device.device_id}`)}
+                color="info"
+              >
+                <HomeIcon />
+              </IconButton>
+            </Tooltip>
+
+            {realtime && (
+              <Typography
+                variant="caption"
+                sx={{ ml: 1 }}
+                color="text.secondary"
+                noWrap
+              >
+                {JSON.stringify(realtime)}
+              </Typography>
+            )}
+          </Stack>
         </CardContent>
-        <CardActions>
-          <IconButton size="small" aria-label="edit" onClick={() => onEdit(device)} color="warning"><EditIcon /></IconButton>
-          <IconButton size="small" aria-label="delete" onClick={() => onDelete(device)} color="error"><DeleteIcon /></IconButton>
-          <IconButton size="small" aria-label="gridstack" onClick={() => navigate(`gridstack/${device.device_id}`)} color="info"><HomeIcon /></IconButton>
-          {realtime && (
-            <Typography variant="caption" sx={{ ml: 1 }} color="text.secondary" noWrap>
-              {JSON.stringify(realtime)}
-            </Typography>
-          )}
-        </CardActions>
       </Card>
     </Box>
   );

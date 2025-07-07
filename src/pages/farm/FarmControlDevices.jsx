@@ -1,17 +1,20 @@
 import { useEffect, useState } from "react";
-import { Button, Container, Divider, Grid, Typography } from "@mui/material";
-import { useSnackbar } from 'notistack';
+import { Button, Container, Divider, Grid, Typography, Tooltip } from "@mui/material";
+import { useSnackbar } from "notistack";
 import { Outlet } from "react-router-dom";
 import {
   SysGetDevices,
   SysCreateDevice,
   SysUpdateDevice,
   SysDeleteDevice,
-  getUserInfo
+  getUserInfo,
 } from "../../services/global_function";
 import DeviceWidget from "../../components/DeviceWidget";
 import DeviceFormDialog from "../../components/DeviceFormDialog";
 import DialogGridStack from "../../components/GridStack/DialogGridStack";
+import BoxLoading from "../../components/BoxLoading";
+
+import { animated, useSprings } from '@react-spring/web';
 
 export default function FarmControlDevices() {
   const [devices, setDevices] = useState([]);
@@ -26,11 +29,10 @@ export default function FarmControlDevices() {
   const fetchDevices = async () => {
     setLoading(true);
     const data = await SysGetDevices();
-    console.log("Fetched devices:", data);
     if (Array.isArray(data)) {
       setDevices(data);
     } else {
-      enqueueSnackbar('ไม่พบข้อมูลอุปกรณ์', { variant: 'warning' });
+      enqueueSnackbar("ไม่พบอุปกรณ์ในระบบ", { variant: "warning" });
       setDevices([]);
     }
     setLoading(false);
@@ -40,55 +42,57 @@ export default function FarmControlDevices() {
     fetchDevices();
   }, []);
 
+  // ✅ สร้าง animation สำหรับแต่ละ device
+  const springs = useSprings(
+    devices.length,
+    devices.map((_, i) => ({
+      from: { opacity: 0, transform: "translateY(20px)" },
+      to: { opacity: 1, transform: "translateY(0)" },
+      delay: i * 100,
+    }))
+  );
+
   const openAddDialog = () => {
     setCurrentDevice(null);
     setAddOpen(true);
   };
 
-  const handleEdit = (device) => {
-    setCurrentDevice(device);
-    setEditOpen(true);
-  };
+  const handleEdit = (device) => setCurrentDevice(device) || setEditOpen(true);
 
   const handleDelete = async (device) => {
-    if (window.confirm("ต้องการลบอุปกรณ์นี้หรือไม่?")) {
+    if (window.confirm("คุณต้องการลบอุปกรณ์นี้หรือไม่?")) {
       const success = await SysDeleteDevice(device._id);
       if (success) {
-        enqueueSnackbar("ลบอุปกรณ์แล้ว", { variant: "success" });
+        enqueueSnackbar("ลบอุปกรณ์เรียบร้อยแล้ว", { variant: "success" });
         setDevices((prev) => prev.filter((d) => d._id !== device._id));
       } else {
-        enqueueSnackbar("ลบอุปกรณ์ไม่สำเร็จ", { variant: "error" });
+        enqueueSnackbar("เกิดข้อผิดพลาดในการลบอุปกรณ์", { variant: "error" });
       }
     }
   };
 
   const handleSubmit = async (values) => {
-    const payload = {
-      ...values,
-      user_id: CURRENT_USER_ID,
-    };
-
-    console.log(payload);
+    const payload = { ...values, user_id: CURRENT_USER_ID };
 
     if (currentDevice) {
       const updated = await SysUpdateDevice(currentDevice._id, payload);
       if (updated) {
-        enqueueSnackbar("แก้ไขอุปกรณ์แล้ว", { variant: "success" });
+        enqueueSnackbar("บันทึกการแก้ไขอุปกรณ์เรียบร้อยแล้ว", { variant: "success" });
         setDevices((prev) =>
           prev.map((d) =>
             d.device_id === currentDevice.device_id ? updated : d
           )
         );
       } else {
-        enqueueSnackbar("แก้ไขอุปกรณ์ไม่สำเร็จ", { variant: "error" });
+        enqueueSnackbar("ไม่สามารถแก้ไขอุปกรณ์ได้", { variant: "error" });
       }
     } else {
       const created = await SysCreateDevice(payload);
       if (created) {
-        enqueueSnackbar("เพิ่มอุปกรณ์แล้ว", { variant: "success" });
+        enqueueSnackbar("เพิ่มอุปกรณ์ใหม่เรียบร้อยแล้ว", { variant: "success" });
         setDevices((prev) => [...prev, created]);
       } else {
-        enqueueSnackbar("เพิ่มอุปกรณ์ไม่สำเร็จ", { variant: "error" });
+        enqueueSnackbar("ไม่สามารถเพิ่มอุปกรณ์ได้", { variant: "error" });
       }
     }
 
@@ -99,22 +103,28 @@ export default function FarmControlDevices() {
 
   return (
     <Container>
-      <Typography variant="h4" sx={{ mb: 2 }}>ระบบควบคุมฟาร์ม</Typography>
-      <Button variant="contained" sx={{ mb: 2 }} onClick={openAddDialog}>เพิ่มอุปกรณ์</Button>
+      <Button
+        variant="contained"
+        sx={{ mb: 2 }}
+        onClick={openAddDialog}
+        size="small"
+      >
+        เพิ่มอุปกรณ์ใหม่
+      </Button>
 
       {loading ? (
-        <Typography>กำลังโหลดข้อมูล...</Typography>
+        <BoxLoading />
       ) : (
         <Grid container spacing={2}>
-          {devices.map((item) => (
-            <Grid item xs={12} sm={6} md={4} key={item._id}>
-              <DeviceWidget
-                device={item}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-              />
-              {/* <Divider sx={{ my: 2 }} /> */}
-              {/* <Button variant="outlined" size="small" onClick={() => navigate(`gridstack/${item._id}`)}>GridStack</Button> */}
+          {springs.map((style, i) => (
+            <Grid item size={4} key={devices[i]._id} sx={{ minHeight: 400 }}>
+              <animated.div style={style}>
+                <DeviceWidget
+                  device={devices[i]}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                />
+              </animated.div>
             </Grid>
           ))}
         </Grid>
@@ -136,6 +146,7 @@ export default function FarmControlDevices() {
         variant="drawer"
         currentUserId={CURRENT_USER_ID}
       />
+
       <Outlet />
     </Container>
   );
