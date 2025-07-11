@@ -17,7 +17,10 @@ import {
   Stack,
   Tooltip,
 } from "@mui/material";
+import imageCompression from "browser-image-compression";
 import AddAPhotoIcon from "@mui/icons-material/AddAPhoto";
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+
 import NoImage from "../assets/no_image.jpg";
 
 export default function DeviceFormDialog({
@@ -59,18 +62,38 @@ export default function DeviceFormDialog({
     }));
   };
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setFormData((prev) => ({ ...prev, image: reader.result }));
-    };
-    reader.readAsDataURL(file);
+
+    try {
+      // ตัวเลือกการบีบอัด
+      const options = {
+        maxSizeMB: 0.2, // ขนาดไม่เกิน 0.5 MB
+        maxWidthOrHeight: 720, // ขนาดภาพไม่เกิน 1024px
+        useWebWorker: true, // ใช้ web worker เพื่อไม่บล็อค UI
+      };
+
+      const compressedFile = await imageCompression(file, options);
+      console.log("ก่อนบีบ:", file.size / 1024, "KB");
+      console.log("หลังบีบ:", compressedFile.size / 1024, "KB");
+
+      // อ่านเป็น Base64 สำหรับ preview หรืออัปโหลด
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData((prev) => ({ ...prev, image: reader.result }));
+      };
+      reader.readAsDataURL(compressedFile);
+    } catch (error) {
+      console.error("เกิดข้อผิดพลาดขณะ compress รูป:", error);
+    }
   };
 
   const triggerFileSelect = () => {
     fileInputRef.current?.click();
+  };
+  const triggerFileRemove = () => {
+    setFormData((prev) => ({ ...prev, image: "" }));
   };
 
   const handleSubmit = () => {
@@ -114,7 +137,7 @@ export default function DeviceFormDialog({
         fullWidth
       />
       {/* <FormControlLabel sx={{ width: '100%', mt: 1, mb: 1 }} control={ <Switch size="small" name="online_status" checked={formData.online_status} onChange={handleChange} color="primary"/> } label="เปิดใช้งาน"/> */}
-      <FormControlLabel
+      {/* <FormControlLabel
         sx={{ width: "100%", mt: 1, mb: 1 }}
         control={
           <Switch
@@ -126,9 +149,9 @@ export default function DeviceFormDialog({
           />
         }
         label="เปิดใช้งานอุปกรณ์"
-      />
+      /> */}
 
-      <Divider />
+      <Divider sx={{ mt: 1 }}/>
       <Stack direction="column" alignItems="center" spacing={2} sx={{ mb: 1 }}>
         <input
           type="file"
@@ -137,13 +160,27 @@ export default function DeviceFormDialog({
           onChange={handleImageChange}
           style={{ display: "none" }}
         />
-        <Button
-          size="small"
-          startIcon={<AddAPhotoIcon />}
-          onClick={triggerFileSelect}
-        >
-          เลือกรูปภาพอุปกรณ์
-        </Button>
+        {
+          !formData.image ? (
+            <Button
+              size="small"
+              startIcon={<AddAPhotoIcon />}
+              onClick={triggerFileSelect}
+            >
+              เลือกรูปภาพอุปกรณ์
+            </Button>
+          ) : (
+            <Button
+              variant="outlined"
+              size="small"
+              color="error"
+              startIcon={<DeleteForeverIcon />}
+              onClick={triggerFileRemove}
+            >
+              ลบรูปภาพอุปกรณ์
+            </Button>
+          )
+        }
         <Box
           sx={{
             overflow: "hidden",
@@ -187,7 +224,7 @@ export default function DeviceFormDialog({
       <Drawer anchor="right" open={open} onClose={onClose}>
         <Box sx={{ width: 350, p: 2, paddingTop: 10 }} role="presentation">
           <Typography variant="h6" gutterBottom>
-            {initialData.device_id ? "แก้ไข" : "เพิ่ม"}อุปกรณ์
+            {initialData.device_id ? "ตั้งค่า" : "เพิ่ม"}อุปกรณ์
           </Typography>
           {formFields}
           <Divider />
@@ -200,7 +237,7 @@ export default function DeviceFormDialog({
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>
-        {initialData.device_id ? "แก้ไข" : "เพิ่ม"}อุปกรณ์
+        {initialData.device_id ? "ตั้งค่า" : "เพิ่ม"}อุปกรณ์
       </DialogTitle>
       <DialogContent>{formFields}</DialogContent>
       <DialogActions>{actions}</DialogActions>

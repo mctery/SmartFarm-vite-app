@@ -15,6 +15,7 @@ import DialogGridStack from "../../components/GridStack/DialogGridStack";
 import BoxLoading from "../../components/BoxLoading";
 
 import { animated, useSprings } from '@react-spring/web';
+import { MQTTConnect } from "../../services/mqtt_service";
 
 export default function FarmControlDevices() {
   const [devices, setDevices] = useState([]);
@@ -27,8 +28,10 @@ export default function FarmControlDevices() {
   const CURRENT_USER_ID = getUserInfo().user_id;
 
   const fetchDevices = async () => {
+    await MQTTConnect();
     setLoading(true);
     const data = await SysGetDevices();
+    console.log(data);
     if (Array.isArray(data)) {
       setDevices(data);
     } else {

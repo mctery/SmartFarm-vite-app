@@ -34,7 +34,6 @@ import {
   deleteWidgetLayout,
 } from "../../services/widget_service";
 import {
-  subscribeDeviceRealtime,
   SysGetDeviceSensorsById,
 } from "../../services/global_function";
 import { ICON } from "../../services/global_variable";
@@ -50,15 +49,9 @@ export default function FarmGridStackOverview() {
   const [isLoading, setIsLoading] = useState(true);
   const [widgets, setWidgets] = useState([]);
   const [openDrawerSensors, setOpenDrawerSensors] = useState(false);
-  const [realtime, setRealtime] = useState(null);
   const [sensors, setSensors] = useState([]);
   const [openDialogWidgetRemove, setDialogWidgetRemove] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
-
-  useEffect(() => {
-    const unsub = subscribeDeviceRealtime(deviceId, (msg) => setRealtime(msg));
-    return unsub;
-  }, [deviceId]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -133,7 +126,7 @@ export default function FarmGridStackOverview() {
             // backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
           }}
         >
-          <Box sx={{ position: "absolute", top: 4, right: 4 }}>
+          <Box sx={{ position: "absolute", bottom: 4, left: 4 }}>
             <Stack direction="row" spacing={0.5}>
               <Tooltip title="แก้ไขวิดเจ็ต">
                 <IconButton
@@ -156,23 +149,7 @@ export default function FarmGridStackOverview() {
             </Stack>
           </Box>
 
-          <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 0.5 }}>
-            {w.title}
-          </Typography>
-
-          {w.type === "sensor" && (
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              {realtime && w.sensorKey
-                ? `${realtime[w.sensorKey]}`
-                : "ไม่มีข้อมูลจากเซนเซอร์"}
-            </Typography>
-          )}
-
-          {w.type === "sensorGroup" && realtime && (
-            <Box sx={{ mt: 1 }}>
-              <DeviceSensors data={realtime} />
-            </Box>
-          )}
+          <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 0.5 }}>{w.title}</Typography>
         </Paper>
       );
     });
@@ -273,9 +250,7 @@ export default function FarmGridStackOverview() {
         handleConfirm={handleClearLayout}
       />
 
-      <Typography variant="h6" sx={{ mb: 1 }}>
-        อุปกรณ์: {deviceId}
-      </Typography>
+      <Typography variant="h6" sx={{ mb: 1 }}>อุปกรณ์: {deviceId}</Typography>
 
       <Stack
         direction="row"
@@ -291,7 +266,7 @@ export default function FarmGridStackOverview() {
             startIcon={ICON.ADD.icon}
             color={ICON.ADD.color}
           >
-            เพิ่มวิดเจ็ตข้อมูล
+            เพิ่มวิดเจ็ตเซนเซอร์
           </Button>
           <Button
             onClick={handleUpdateLayout}

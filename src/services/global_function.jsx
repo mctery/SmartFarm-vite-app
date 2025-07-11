@@ -160,26 +160,6 @@ export async function SysUpdateDeviceSensors(id) {
   }
 }
 
-export function subscribeDeviceRealtime(deviceId, onMessage) {
-  try {
-    const ws = new WebSocket(
-      `${import.meta.env.VITE_WEB_SOCKET}/ws/device/${deviceId}`
-    );
-    ws.onmessage = (event) => {
-      try {
-        const msg = JSON.parse(event.data);
-        onMessage(msg);
-      } catch (err) {
-        console.error("MQTT parse error", err);
-      }
-    };
-    return () => ws.close();
-  } catch (error) {
-    console.error("subscribeDeviceRealtime failed", error);
-    return () => {};
-  }
-}
-
 function redirectToLogin() {
   window.location.pathname = "/";
 }
