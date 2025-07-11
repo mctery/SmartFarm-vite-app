@@ -35,7 +35,7 @@ import {
 } from "../../services/widget_service";
 import {
   SysGetDeviceSensorsById,
-} from "../../services/global_function";
+} from "../../services/sensor_service";
 import { ICON } from "../../services/global_variable";
 
 export default function FarmGridStackOverview() {

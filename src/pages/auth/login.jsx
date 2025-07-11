@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { Button, TextField, Typography, Divider } from "@mui/material";
 import { useSnackbar } from 'notistack';
-import { SysLogin, SysCheckToken } from "../../services/global_function";
+import { SysLogin, SysCheckToken } from "../../services/auth_service";
 import AuthLayout from "../../components/AuthLayout";
 
 const LoginPage = () => {
