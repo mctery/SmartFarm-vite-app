@@ -7,14 +7,14 @@ import {
   SysCreateDevice,
   SysUpdateDevice,
   SysDeleteDevice,
-  getUserInfo,
-} from "../../services/global_function";
+} from "../../services/device_service";
+import { getUserInfo } from "../../services/storage_service";
 import DeviceWidget from "../../components/DeviceWidget";
 import DeviceFormDialog from "../../components/DeviceFormDialog";
 import DialogGridStack from "../../components/GridStack/DialogGridStack";
 import BoxLoading from "../../components/BoxLoading";
 
-import { animated, useSprings } from '@react-spring/web';
+import { animated as Animated, useSprings } from '@react-spring/web';
 import { MQTTConnect } from "../../services/mqtt_service";
 
 export default function FarmControlDevices() {
@@ -121,13 +121,13 @@ export default function FarmControlDevices() {
         <Grid container spacing={2}>
           {springs.map((style, i) => (
             <Grid item size={4} key={devices[i]._id} sx={{ minHeight: 400 }}>
-              <animated.div style={style}>
+              <Animated.div style={style}>
                 <DeviceWidget
                   device={devices[i]}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
                 />
-              </animated.div>
+              </Animated.div>
             </Grid>
           ))}
         </Grid>

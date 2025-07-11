@@ -29,8 +29,8 @@ export function MQTTConnect() {
         try {
           const payload = JSON.parse(message.toString());
           handler(payload);
-        } catch (error) {
-          console.error("Invalid JSON from MQTT:", message.toString());
+        } catch (_err) {
+          console.error('Invalid JSON from MQTT:', _err);
         }
       }
     });
