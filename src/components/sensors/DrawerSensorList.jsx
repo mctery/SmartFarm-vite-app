@@ -22,12 +22,19 @@ import GroupWorkIcon from "@mui/icons-material/GroupWork";
 import ThermostatIcon from "@mui/icons-material/Thermostat";
 import LeakAddTwoToneIcon from "@mui/icons-material/LeakAddTwoTone";
 
-export default function SensorDrawer({
+import { SysCreateDevice, SysUpdateDeviceSensors, SysDeleteDevice } from "../../services/sensor_service"
+import { getUserInfo } from "../../services/storage_service";
+
+const CURRENT_USER_ID = getUserInfo().user_id;
+
+export default function DrawerSensorList({
   open,
   onClose,
   sensors = [],
   onAddSensor,
   onAddSensorGroup,
+  onUpdateSensor,
+  onDeleteSensor,
   deviceId,
 }) {
   const [openForm, setOpenForm] = useState(false);
@@ -37,6 +44,8 @@ export default function SensorDrawer({
     sensor_type: "",
     sensor_id: "",
     unit: "",
+    user_id: CURRENT_USER_ID,
+    status: true
   });
   const [loading, setLoading] = useState(false);
 
@@ -44,10 +53,10 @@ export default function SensorDrawer({
     String(val).charAt(0).toUpperCase() + String(val).slice(1);
 
   const openAddSensorForm = () => {
-    setFormData({ sensor_type: "", sensor_id: "", unit: "" });
+    setFormData({ sensor_type: "", sensor_id: "", unit: "", status: true });
     setIsEditMode(false);
     setEditId(null);
-    setOpenForm(true);
+    handleDialogOpen();
   };
 
   const handleEditSensor = (sensor) => {
@@ -55,10 +64,11 @@ export default function SensorDrawer({
       sensor_type: sensor.sensor_type,
       sensor_id: sensor.sensor_id,
       unit: sensor.unit || "",
+      status: sensor.status || true
     });
     setEditId(sensor._id); // ต้องแน่ใจว่า sensor มี _id
     setIsEditMode(true);
-    setOpenForm(true);
+    handleDialogOpen();
   };
 
   const handleSubmit = async () => {
@@ -67,30 +77,32 @@ export default function SensorDrawer({
       const payload = {
         device_id: deviceId,
         ...formData,
-        updated_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       };
 
       let res;
       if (isEditMode && editId) {
-        res = await axios.put(`/api/sensorsdata/${editId}`, payload);
+        res = await SysUpdateDeviceSensors(editId, payload);
       } else {
         payload.time = new Date().toISOString();
-        res = await axios.post("/api/sensorsdata", payload);
+        res = await SysCreateDevice(payload);
       }
 
-      if (res.status === 200 || res.status === 201) {
-        const result = res.data;
-        setOpenForm(false);
-        setFormData({ sensor_type: "", sensor_id: "", unit: "" });
-        setEditId(null);
-        setIsEditMode(false);
-
+      if (res) {
+        const result = res;
         onAddSensor(result); // ✅ ใช้ callback จาก parent
       }
+      
     } catch (err) {
       console.error("Sensor save error:", err);
     } finally {
       setLoading(false);
+      handleDialogClose();
+
+      setOpenForm(false);
+      setFormData({ sensor_type: "", sensor_id: "", unit: "", status: true });
+      setEditId(null);
+      setIsEditMode(false);
     }
   };
 
@@ -102,29 +114,30 @@ export default function SensorDrawer({
 
     try {
       setLoading(true);
-      await axios.delete(`/api/sensorsdata/${editId}`);
-
-      // หลังลบสำเร็จ:
-      setOpenForm(false);
-      setFormData({ sensor_type: "", sensor_id: "", unit: "" });
-      setEditId(null);
-      setIsEditMode(false);
+      await SysDeleteDevice(editId);
 
       // ส่งกลับให้ parent อัปเดต list
-      onAddSensor({ _deleted: true, _id: editId });
+      // onAddSensor({ _deleted: true, _id: editId });
     } catch (err) {
       console.error("ลบ sensor ไม่สำเร็จ:", err);
     } finally {
       setLoading(false);
+      handleDialogClose();
+
+      // หลังลบสำเร็จ:
+      setFormData({ sensor_type: "", sensor_id: "", unit: "" });
+      setEditId(null);
+      setIsEditMode(false);
     }
   };
+
+  const handleDialogOpen = () => { setOpenForm(true) };
+  const handleDialogClose = () => { setOpenForm(false) };
 
   return (
     <Drawer anchor="right" open={open} onClose={onClose}>
       <Box sx={{ width: 1000, p: 2, pt: 10 }} role="presentation">
-        <Typography variant="h6" sx={{ mb: 2 }}>
-          เพิ่มวิดเจ็ตเซนเซอร์
-        </Typography>
+        <Typography variant="h6" sx={{ mb: 2 }}>เพิ่มวิดเจ็ตเซนเซอร์</Typography>
 
         <Stack direction="row" spacing={1}>
           <Button
@@ -156,7 +169,7 @@ export default function SensorDrawer({
             sensors.map((sensor, index) => (
               <ListItem
                 key={`sensor-${index}`}
-                button
+                button="true"
                 sx={{ cursor: "pointer" }}
                 onClick={() => handleEditSensor(sensor)}
               >
@@ -170,23 +183,14 @@ export default function SensorDrawer({
               </ListItem>
             ))
           ) : (
-            <Typography variant="body2" sx={{ mt: 1 }}>
-              ไม่พบเซนเซอร์ที่เชื่อมต่อ
-            </Typography>
+            <Typography variant="body2" sx={{ mt: 1 }}>ไม่พบเซนเซอร์ที่เชื่อมต่อ</Typography>
           )}
         </List>
       </Box>
 
       {/* 🔽 Dialog ฟอร์มเพิ่ม/แก้ไข Sensor */}
-      <Dialog
-        open={openForm}
-        onClose={() => setOpenForm(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>
-          {isEditMode ? "แก้ไขเซนเซอร์" : "เพิ่มเซนเซอร์ใหม่"}
-        </DialogTitle>
+      <Dialog open={openForm} onClose={handleDialogClose} maxWidth="sm" fullWidth>
+        <DialogTitle>{isEditMode ? "แก้ไขเซนเซอร์" : "เพิ่มเซนเซอร์ใหม่"}</DialogTitle>
         <DialogContent>
           <TextField
             label="Sensor Type"
@@ -194,9 +198,7 @@ export default function SensorDrawer({
             fullWidth
             margin="normal"
             value={formData.sensor_type}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, sensor_type: e.target.value }))
-            }
+            onChange={(e) => setFormData((prev) => ({ ...prev, sensor_type: e.target.value })) }
           />
           <TextField
             label="Sensor ID"
@@ -204,9 +206,7 @@ export default function SensorDrawer({
             fullWidth
             margin="normal"
             value={formData.sensor_id}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, sensor_id: e.target.value }))
-            }
+            onChange={(e) => setFormData((prev) => ({ ...prev, sensor_id: e.target.value })) }
           />
           <TextField
             label="หน่วย (°C, %, lux)"
@@ -214,27 +214,29 @@ export default function SensorDrawer({
             fullWidth
             margin="normal"
             value={formData.unit}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, unit: e.target.value }))
-            }
+            onChange={(e) => setFormData((prev) => ({ ...prev, unit: e.target.value })) }
           />
+
+          <Divider sx={{ my: 1 }} />
+          <Stack direction="row" spacing={2} justifyContent={'space-between'}>
+            {isEditMode && (
+              <Button
+                onClick={handleDelete}
+                color="error"
+                variant="outlined"
+                disabled={loading}
+              >
+                ลบเซนเซอร์
+              </Button>
+            )}
+            <Stack direction="row" spacing={2}>
+              <Button onClick={handleDialogClose}>ยกเลิก</Button>
+              <Button onClick={handleSubmit} variant="contained" disabled={loading}>
+                {loading ? "กำลังบันทึก..." : isEditMode ? "อัปเดต" : "บันทึก"}
+              </Button>
+            </Stack>
+          </Stack>
         </DialogContent>
-        <DialogActions>
-          {isEditMode && (
-            <Button
-              onClick={handleDelete}
-              color="error"
-              variant="outlined"
-              disabled={loading}
-            >
-              ลบเซนเซอร์
-            </Button>
-          )}
-          <Button onClick={() => setOpenForm(false)}>ยกเลิก</Button>
-          <Button onClick={handleSubmit} variant="contained" disabled={loading}>
-            {loading ? "กำลังบันทึก..." : isEditMode ? "อัปเดต" : "บันทึก"}
-          </Button>
-        </DialogActions>
       </Dialog>
     </Drawer>
   );

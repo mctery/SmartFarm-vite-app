@@ -37,6 +37,8 @@ import {
   SysGetDeviceSensorsById,
 } from "../../services/sensor_service";
 import { ICON } from "../../services/global_variable";
+import { getUserInfo } from "../../services/storage_service";
+
 
 export default function FarmGridStackOverview() {
   const { deviceId } = useParams();
@@ -45,6 +47,8 @@ export default function FarmGridStackOverview() {
   const nextId = useRef(1);
   const isSavingRef = useRef(false);
   const theme = useTheme();
+
+  const CURRENT_USER_ID = getUserInfo().user_id;
 
   const [isLoading, setIsLoading] = useState(true);
   const [widgets, setWidgets] = useState([]);
@@ -210,6 +214,9 @@ export default function FarmGridStackOverview() {
     });
   };
 
+  const handleUpdateSensor = (sensor) => {};
+  const handleDeleteSensor = (sensor) => {};
+
   const handleRemoveWidget = (id) => {
     setWidgets((prev) => prev.filter((w) => w.id !== id));
   };
@@ -290,11 +297,15 @@ export default function FarmGridStackOverview() {
       </Stack>
 
       <DrawerSensorList
+        currentUserId={CURRENT_USER_ID}
+        deviceId={deviceId}
         open={openDrawerSensors}
-        onClose={handleCloseSideDrawerSensors}
         sensors={sensors}
+        onClose={handleCloseSideDrawerSensors}
         onAddSensor={handleAddSensor}
         onAddSensorGroup={handleAddSensorGroup}
+        onUpdateSensor={handleUpdateSensor}
+        onDeleteSensor={handleDeleteSensor}
       />
 
       <Box
