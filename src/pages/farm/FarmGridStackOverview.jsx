@@ -57,6 +57,11 @@ export default function FarmGridStackOverview() {
   const [openDialogWidgetRemove, setDialogWidgetRemove] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
 
+  const refreshSensors = async () => {
+    const latest = await SysGetDeviceSensorsById(deviceId);
+    setSensors(latest);
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       const sensors = await SysGetDeviceSensorsById(deviceId);
@@ -189,7 +194,7 @@ export default function FarmGridStackOverview() {
     nextId.current += 1;
   };
 
-  const handleAddSensor = (sensor) => {
+  const handleAddSensor = async (sensor) => {
     handleAddWidget({
       id: nextId.current,
       x: 0,
@@ -200,6 +205,7 @@ export default function FarmGridStackOverview() {
       title: `${sensor.sensor_type} (${sensor.sensor_id})`,
       sensorKey: sensor.sensor_id,
     });
+    await refreshSensors();
   };
 
   const handleAddSensorGroup = () => {
@@ -214,8 +220,12 @@ export default function FarmGridStackOverview() {
     });
   };
 
-  const handleUpdateSensor = (sensor) => {};
-  const handleDeleteSensor = (sensor) => {};
+  const handleUpdateSensor = async () => {
+    await refreshSensors();
+  };
+  const handleDeleteSensor = async () => {
+    await refreshSensors();
+  };
 
   const handleRemoveWidget = (id) => {
     setWidgets((prev) => prev.filter((w) => w.id !== id));
