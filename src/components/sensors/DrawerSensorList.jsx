@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import axios from "axios";
 import {
   Box,
   Drawer,
@@ -22,7 +21,7 @@ import GroupWorkIcon from "@mui/icons-material/GroupWork";
 import ThermostatIcon from "@mui/icons-material/Thermostat";
 import LeakAddTwoToneIcon from "@mui/icons-material/LeakAddTwoTone";
 
-import { SysCreateDevice, SysUpdateDeviceSensors, SysDeleteDevice } from "../../services/sensor_service"
+import { SysCreateDevice, SysUpdateDeviceSensors, SysDeleteDevice } from "../../services/sensor_service";
 import { getUserInfo } from "../../services/storage_service";
 
 const CURRENT_USER_ID = getUserInfo().user_id;
@@ -90,7 +89,11 @@ export default function DrawerSensorList({
 
       if (res) {
         const result = res;
-        onAddSensor(result); // ✅ ใช้ callback จาก parent
+        if (isEditMode) {
+          onUpdateSensor(result);
+        } else {
+          onAddSensor(result);
+        }
       }
       
     } catch (err) {
@@ -115,9 +118,7 @@ export default function DrawerSensorList({
     try {
       setLoading(true);
       await SysDeleteDevice(editId);
-
-      // ส่งกลับให้ parent อัปเดต list
-      // onAddSensor({ _deleted: true, _id: editId });
+      onDeleteSensor({ _id: editId });
     } catch (err) {
       console.error("ลบ sensor ไม่สำเร็จ:", err);
     } finally {
