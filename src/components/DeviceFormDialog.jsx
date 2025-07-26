@@ -236,9 +236,7 @@ export default function DeviceFormDialog({
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>
-        {initialData.device_id ? "ตั้งค่า" : "เพิ่ม"}อุปกรณ์
-      </DialogTitle>
+      <DialogTitle>{initialData.device_id ? "ตั้งค่า" : "เพิ่ม"}อุปกรณ์</DialogTitle>
       <DialogContent>{formFields}</DialogContent>
       <DialogActions>{actions}</DialogActions>
     </Dialog>

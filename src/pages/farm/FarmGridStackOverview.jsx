@@ -13,20 +13,14 @@ import {
 } from "@mui/material";
 import { useSnackbar } from "notistack";
 
-import CloseIcon from "@mui/icons-material/Close";
-import AddCircleIcon from "@mui/icons-material/AddCircle";
-import EditIcon from "@mui/icons-material/Edit";
-import ArchiveIcon from "@mui/icons-material/Archive";
-import FileCopyIcon from "@mui/icons-material/FileCopy";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-
 import { GridStack } from "gridstack";
+import { GridStackWidgetCore } from "../../components/GridStack/GridStackWidgetCore";
 import "gridstack/dist/gridstack.min.css";
 
-import DeviceSensors from "../../components/DeviceSensors";
 import BoxLoading from "../../components/BoxLoading";
 import DialogConfirm from "../../components/DaialogConfirm";
-import DrawerSensorList from "../../components/sensors/DrawerSensorList";
+import DrawerSensorList from "../../components/GridStack/DrawerSensorList";
+
 
 import {
   getWidgetLayout,
@@ -103,16 +97,16 @@ export default function FarmGridStackOverview() {
     };
   }, [widgets]);
 
-  const addWidgetToGrid = (w) => {
+  const addWidgetToGrid = (widget) => {
     if (!grid.current) return;
 
     const wrapper = document.createElement("div");
     wrapper.classList.add("grid-stack-item");
-    wrapper.setAttribute("gs-x", w.x);
-    wrapper.setAttribute("gs-y", w.y);
-    wrapper.setAttribute("gs-w", w.w);
-    wrapper.setAttribute("gs-h", w.h);
-    wrapper.setAttribute("gs-id", w.id);
+    wrapper.setAttribute("gs-x", widget.x);
+    wrapper.setAttribute("gs-y", widget.y);
+    wrapper.setAttribute("gs-w", widget.w);
+    wrapper.setAttribute("gs-h", widget.h);
+    wrapper.setAttribute("gs-id", widget.id);
 
     const contentDiv = document.createElement("div");
     contentDiv.classList.add("grid-stack-item-content");
@@ -121,60 +115,21 @@ export default function FarmGridStackOverview() {
 
     import("react-dom/client").then((m) => {
       const root = m.createRoot(contentDiv);
-      root.render(
-        <Paper
-          elevation={3}
-          sx={{
-            p: 2,
-            height: "100%",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-            position: "relative",
-            borderRadius: 3,
-            // backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
-          }}
-        >
-          <Box sx={{ position: "absolute", bottom: 4, left: 4 }}>
-            <Stack direction="row" spacing={0.5}>
-              <Tooltip title="แก้ไขวิดเจ็ต">
-                <IconButton
-                  size="small"
-                  onClick={() => handleEditWidget(w.id)}
-                  color={ICON.EDIT.color}
-                >
-                  {ICON.EDIT.icon}
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="ลบวิดเจ็ต">
-                <IconButton
-                  size="small"
-                  onClick={() => handleRemoveWidget(w.id)}
-                  color={ICON.REMOVE.color}
-                >
-                  {ICON.REMOVE.icon}
-                </IconButton>
-              </Tooltip>
-            </Stack>
-          </Box>
-
-          <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 0.5 }}>{w.title}</Typography>
-        </Paper>
-      );
+      root.render(<GridStackWidgetCore deviceId={deviceId} widget={widget} onEdit={handleEditWidget} onDelete={handleRemoveWidget}/>);
     });
   };
 
   const handleUpdateLayout = async () => {
     try {
       if (!grid.current) return;
+      
       const domNodes = grid.current.el.querySelectorAll(".grid-stack-item");
       const updated = widgets.map((w) => {
-        const el = Array.from(domNodes).find(
-          (el) => parseInt(el.getAttribute("gs-id")) === w.id
-        );
+        const el = Array.from(domNodes).find((el) => parseInt(el.getAttribute("gs-id")) === w.id);
         const node = el?.gridstackNode;
         return node ? { ...w, x: node.x, y: node.y, w: node.w, h: node.h } : w;
       });
+
       setWidgets(updated);
       await saveWidgetLayout(deviceId, updated);
       enqueueSnackbar("บันทึกผังวิดเจ็ตเรียบร้อยแล้ว", {

@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types';
 import { Stack } from '@mui/material';
-import TemperatureSensor from './sensors/TemperatureSensor';
-import HumiditySensor from './sensors/HumiditySensor';
-import LightSensor from './sensors/LightSensor';
-import SoilSensor from './sensors/SoilSensor';
+import TemperatureSensor from './GridStack/sensors/TemperatureSensor';
+import HumiditySensor from './GridStack/sensors/HumiditySensor';
+import LightSensor from './GridStack/sensors/LightSensor';
+import SoilSensor from './GridStack/sensors/SoilSensor';
 
 export default function DeviceSensors({ data = {} }) {
   return (

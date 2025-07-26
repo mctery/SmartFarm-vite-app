@@ -11,7 +11,6 @@ import {
 import { getUserInfo } from "../../services/storage_service";
 import DeviceWidget from "../../components/DeviceWidget";
 import DeviceFormDialog from "../../components/DeviceFormDialog";
-import DialogGridStack from "../../components/GridStack/DialogGridStack";
 import BoxLoading from "../../components/BoxLoading";
 
 import { animated as Animated, useSprings } from '@react-spring/web';

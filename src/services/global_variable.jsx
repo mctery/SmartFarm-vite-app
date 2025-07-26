@@ -38,27 +38,49 @@ export const NOTIFICATION_TYPE = {
 };
 
 export const SENSORS_TYPE = {
-  TEMPERATURE: {
+  temperature: {
     key: 'temperature',
     type: "temperature",
     name: "อุณหภูมิ",
     unit: "°C",
     icon: <ThermostatIcon />,
   },
-  HUMIDITY: {
+  humidity: {
     key: 'humidity',
     type: "humidity",
     name: "ความชื้น",
     unit: "%",
     icon: <WaterDropIcon />,
   },
-  LIGHT: {
+  light: {
     key: 'light',
     type: "light",
     name: "แสง",
     unit: "",
     icon: <LightbulbIcon />,
   },
+};
+
+export const WEATHER_ICON = {
+  "01d": <i className="wi wi-day-sunny" />,
+  "01n": <i className="wi wi-night-clear" />,
+  "02d": <i className="wi wi-day-cloudy" />,
+  "02n": <i className="wi wi-night-alt-cloudy" />,
+  "03d": <i className="wi wi-cloud" />,
+  "03n": <i className="wi wi-cloud" />,
+  "04d": <i className="wi wi-cloudy" />,
+  "04n": <i className="wi wi-cloudy" />,
+  "09d": <i className="wi wi-showers" />,
+  "09n": <i className="wi wi-showers" />,
+  "10d": <i className="wi wi-day-rain" />,
+  "10n": <i className="wi wi-night-rain" />,
+  "11d": <i className="wi wi-thunderstorm" />,
+  "11n": <i className="wi wi-thunderstorm" />,
+  "13d": <i className="wi wi-snow" />,
+  "13n": <i className="wi wi-snow" />,
+  "50d": <i className="wi wi-fog" />,
+  "50n": <i className="wi wi-fog" />,
+  DEFAULT: <i className="wi wi-na" />
 };
 
 export const STYLES = {

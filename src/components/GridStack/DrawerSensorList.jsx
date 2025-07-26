@@ -4,6 +4,7 @@ import {
   Drawer,
   Typography,
   Button,
+  ButtonGroup,
   Stack,
   Divider,
   List,
@@ -23,8 +24,7 @@ import LeakAddTwoToneIcon from "@mui/icons-material/LeakAddTwoTone";
 
 import { SysCreateDevice, SysUpdateDeviceSensors, SysDeleteDevice } from "../../services/sensor_service";
 import { getUserInfo } from "../../services/storage_service";
-
-const CURRENT_USER_ID = getUserInfo().user_id;
+import { ICON, SENSORS_TYPE } from "../../services/global_variable";
 
 export default function DrawerSensorList({
   open,
@@ -36,6 +36,7 @@ export default function DrawerSensorList({
   onDeleteSensor,
   deviceId,
 }) {
+  const CURRENT_USER_ID = getUserInfo().user_id;
   const [openForm, setOpenForm] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editId, setEditId] = useState(null); // _id ของ sensor ที่จะแก้ไข
@@ -48,8 +49,7 @@ export default function DrawerSensorList({
   });
   const [loading, setLoading] = useState(false);
 
-  const capitalizeFirstLetter = (val) =>
-    String(val).charAt(0).toUpperCase() + String(val).slice(1);
+  const capitalizeFirstLetter = (val) => String(val).charAt(0).toUpperCase() + String(val).slice(1);
 
   const openAddSensorForm = () => {
     setFormData({ sensor_type: "", sensor_id: "", unit: "", status: true });
@@ -137,30 +137,12 @@ export default function DrawerSensorList({
 
   return (
     <Drawer anchor="right" open={open} onClose={onClose}>
-      <Box sx={{ width: 1000, p: 2, pt: 10 }} role="presentation">
+      <Box sx={{ width: 500, p: 2, pt: 10 }} role="presentation">
         <Typography variant="h6" sx={{ mb: 2 }}>เพิ่มวิดเจ็ตเซนเซอร์</Typography>
 
         <Stack direction="row" spacing={1}>
-          <Button
-            variant="outlined"
-            fullWidth
-            startIcon={<LeakAddTwoToneIcon />}
-            onClick={openAddSensorForm}
-          >
-            เพิ่มเซนเซอร์
-          </Button>
-          <Button
-            variant="outlined"
-            color="info"
-            fullWidth
-            startIcon={<GroupWorkIcon />}
-            onClick={() => {
-              onAddSensorGroup();
-              onClose();
-            }}
-          >
-            เพิ่มวิดเจ็ตเซนเซอร์เป็นกลุ่ม
-          </Button>
+          <Button variant="outlined" fullWidth startIcon={<LeakAddTwoToneIcon />} onClick={openAddSensorForm}>เพิ่มเซนเซอร์</Button>
+          <Button variant="outlined" color="info" fullWidth startIcon={<GroupWorkIcon />} onClick={() => { onAddSensorGroup(); onClose(); }}>เพิ่มวิดเจ็ตเซนเซอร์เป็นกลุ่ม</Button>
         </Stack>
 
         <Divider sx={{ my: 2 }} />
@@ -168,19 +150,13 @@ export default function DrawerSensorList({
         <List>
           {sensors.length > 0 ? (
             sensors.map((sensor, index) => (
-              <ListItem
-                key={`sensor-${index}`}
-                button="true"
-                sx={{ cursor: "pointer" }}
-                onClick={() => handleEditSensor(sensor)}
-              >
-                <ListItemIcon>
-                  <ThermostatIcon />
-                </ListItemIcon>
-                <ListItemText
-                  primary={capitalizeFirstLetter(sensor.sensor_type)}
-                  secondary={`Sensor ID: ${sensor.sensor_id}`}
-                />
+              <ListItem key={`sensor-${index}`} button="true" sx={{ cursor: "pointer" }}>
+                <ListItemIcon>{SENSORS_TYPE[sensor.sensor_type]?.icon}</ListItemIcon>
+                <ListItemText primary={capitalizeFirstLetter(sensor.sensor_type)} secondary={`Sensor ID: ${sensor.sensor_id}`}/>
+                <ButtonGroup size="small" variant="contained">
+                  <Button color="success" startIcon={ICON.ADD.icon} size="small" onClick={() => onAddSensor(sensor)}>เพิ่ม</Button>
+                  <Button color="warning" startIcon={ICON.EDIT.icon} size="small" onClick={() => handleEditSensor(sensor)}>แก้ไข</Button>
+                </ButtonGroup>
               </ListItem>
             ))
           ) : (

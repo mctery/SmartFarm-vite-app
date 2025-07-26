@@ -1,5 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom/client";
+import "weather-icons/css/weather-icons.css";
 import "gridstack/dist/gridstack.min.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
