@@ -13,6 +13,7 @@ export function MqttProvider({ topics = [], children }) {
 
       for (const topic of topics) {
         const unsubscribe = await MQTTSubscribe(topic, (payload) => {
+          // console.log(payload);
           setMqttData((prev) => ({ ...prev, [topic]: payload }));
         });
         subscribes.push(unsubscribe);

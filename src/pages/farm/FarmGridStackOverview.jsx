@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useReducer } from "react";
 import { useParams } from "react-router-dom";
 import {
   Box,
@@ -10,6 +10,7 @@ import {
   Tooltip,
   Divider,
   useTheme,
+  Portal
 } from "@mui/material";
 import { useSnackbar } from "notistack";
 
@@ -32,6 +33,8 @@ import { SysGetDeviceSensorsById } from "../../services/sensor_service";
 import { ICON } from "../../services/global_variable";
 import { getUserInfo } from "../../services/storage_service";
 
+import { MqttProvider } from "../../components/GridStack/context/MqttProvider";
+
 export default function FarmGridStackOverview() {
   const { deviceId } = useParams();
   const gridRef = useRef(null);
@@ -40,6 +43,7 @@ export default function FarmGridStackOverview() {
   const isSavingRef = useRef(false);
   const widgetContainersRef = useRef(new Map());
   const theme = useTheme();
+  const [, forceRender] = useReducer((x) => x + 1, 0);
 
   const CURRENT_USER_ID = getUserInfo().user_id;
 
@@ -50,6 +54,15 @@ export default function FarmGridStackOverview() {
   const [openDrawerSensors, setOpenDrawerSensors] = useState(false);
   const [openDialogOtherWidget, setOpenDialogOtherWidget] = useState(false);
   const [openDialogWidgetRemove, setDialogWidgetRemove] = useState(false);
+
+  const mqttTopics = [
+    `device/${deviceId}/temperature`,
+    `device/${deviceId}/humidity`,
+    `device/${deviceId}/light`,
+    `device/${deviceId}/soil`,
+
+    `device/${deviceId}/will`
+  ];
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -96,6 +109,7 @@ export default function FarmGridStackOverview() {
 
     grid.current.removeAll(true);
     widgets.forEach(addWidgetToGrid);
+    forceRender();
 
     return () => {
       grid.current?.destroy(false);
@@ -226,112 +240,114 @@ export default function FarmGridStackOverview() {
   if (isLoading) return <BoxLoading />;
 
   return (
-    <Box sx={{ p: 2 }}>
-      <DialogConfirm
-        open={openDialogWidgetRemove}
-        title="ลบผังวิดเจ็ตทั้งหมด?"
-        content="คุณต้องการลบวิดเจ็ตทั้งหมดออกจากหน้าจอหรือไม่?"
-        handleClose={handleCloseDialogWidgetRemove}
-        handleConfirm={handleClearLayout}
-      />
+    <MqttProvider topics={mqttTopics}>
+      <Box sx={{ p: 2 }}>
+        <DialogConfirm
+          open={openDialogWidgetRemove}
+          title="ลบผังวิดเจ็ตทั้งหมด?"
+          content="คุณต้องการลบวิดเจ็ตทั้งหมดออกจากหน้าจอหรือไม่?"
+          handleClose={handleCloseDialogWidgetRemove}
+          handleConfirm={handleClearLayout}
+        />
 
-      <Typography variant="h6" sx={{ mb: 1 }}>
-        อุปกรณ์: {deviceId}
-      </Typography>
+        <Typography variant="h6" sx={{ mb: 1 }}>
+          อุปกรณ์: {deviceId}
+        </Typography>
 
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        spacing={1}
-        sx={{ mb: 1 }}
-      >
-        <Stack direction="row" spacing={1}>
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          spacing={1}
+          sx={{ mb: 1 }}
+        >
+          <Stack direction="row" spacing={1}>
+            <Button
+              onClick={handleOpenSideDrawerSensors}
+              variant="contained"
+              size="small"
+              startIcon={ICON.ADD.icon}
+              color={ICON.ADD.color}
+            >
+              เพิ่มวิดเจ็ตเซนเซอร์
+            </Button>
+            <Button
+              onClick={handleOpenSideDrawerOtherWidget}
+              variant="contained"
+              size="small"
+              startIcon={ICON.ADD.icon}
+              color={ICON.ADD.color}
+            >
+              เพิ่มวิดเจ็ตอื่นๆ
+            </Button>
+            <Divider orientation="vertical" flexItem />
+            <Button
+              onClick={handleUpdateLayout}
+              variant="contained"
+              size="small"
+              startIcon={ICON.SAVE.icon}
+              color={ICON.SAVE.color}
+            >
+              บันทึกตำแหน่งวิดเจ็ต
+            </Button>
+          </Stack>
           <Button
-            onClick={handleOpenSideDrawerSensors}
-            variant="contained"
+            onClick={handleOpenDialogWidgetRemove}
+            variant="outlined"
             size="small"
-            startIcon={ICON.ADD.icon}
-            color={ICON.ADD.color}
+            startIcon={ICON.DELETE.icon}
+            color={ICON.DELETE.color}
           >
-            เพิ่มวิดเจ็ตเซนเซอร์
-          </Button>
-          <Button
-            onClick={handleOpenSideDrawerOtherWidget}
-            variant="contained"
-            size="small"
-            startIcon={ICON.ADD.icon}
-            color={ICON.ADD.color}
-          >
-            เพิ่มวิดเจ็ตอื่นๆ
-          </Button>
-          <Divider orientation="vertical" flexItem />
-          <Button
-            onClick={handleUpdateLayout}
-            variant="contained"
-            size="small"
-            startIcon={ICON.SAVE.icon}
-            color={ICON.SAVE.color}
-          >
-            บันทึกตำแหน่งวิดเจ็ต
+            ลบวิดเจ็ตทั้งหมด
           </Button>
         </Stack>
-        <Button
-          onClick={handleOpenDialogWidgetRemove}
-          variant="outlined"
-          size="small"
-          startIcon={ICON.DELETE.icon}
-          color={ICON.DELETE.color}
+
+        <DrawerSensorList
+          currentUserId={CURRENT_USER_ID}
+          deviceId={deviceId}
+          open={openDrawerSensors}
+          sensors={sensors}
+          onClose={handleCloseSideDrawerSensors}
+          onAddSensor={handleAddSensor}
+          onAddSensorGroup={handleAddSensorGroup}
+          onUpdateSensor={handleUpdateSensor}
+          onDeleteSensor={handleDeleteSensor}
+        />
+
+        <DrawerOtherWidget
+          currentUserId={CURRENT_USER_ID}
+          deviceId={deviceId}
+          open={openDialogOtherWidget}
+          onClose={handleCloseSideDrawerOtherWidget}
+        />
+
+        <Box
+          sx={{
+            width: "100%",
+            height: "80vh",
+            backgroundColor: theme.palette.grey[200],
+            borderRadius: 2,
+            border: "1px dashed #ccc",
+          }}
         >
-          ลบวิดเจ็ตทั้งหมด
-        </Button>
-      </Stack>
-
-      <DrawerSensorList
-        currentUserId={CURRENT_USER_ID}
-        deviceId={deviceId}
-        open={openDrawerSensors}
-        sensors={sensors}
-        onClose={handleCloseSideDrawerSensors}
-        onAddSensor={handleAddSensor}
-        onAddSensorGroup={handleAddSensorGroup}
-        onUpdateSensor={handleUpdateSensor}
-        onDeleteSensor={handleDeleteSensor}
-      />
-
-      <DrawerOtherWidget
-        currentUserId={CURRENT_USER_ID}
-        deviceId={deviceId}
-        open={openDialogOtherWidget}
-        onClose={handleCloseSideDrawerOtherWidget}
-      />
-
-      <Box
-        sx={{
-          width: "100%",
-          height: "80vh",
-          backgroundColor: theme.palette.grey[200],
-          borderRadius: 2,
-          border: "1px dashed #ccc",
-        }}
-      >
-        <div className="grid-stack" ref={gridRef}></div>
-        {widgets.map((w) => {
-          const container = widgetContainersRef.current.get(w.id);
-          return (
-            container &&
-            createPortal(
-              <GridStackWidgetCore
-                key={w.id}
-                deviceId={deviceId}
-                widget={w}
-                onEdit={handleEditWidget}
-                onDelete={handleRemoveWidget}
-              />,
-              container
-            )
-          );
-        })}
+          <div className="grid-stack" ref={gridRef}></div>
+          {widgets.map((w) => {
+            const container = widgetContainersRef.current.get(w.id);
+            return (
+              container &&
+              createPortal(
+                <GridStackWidgetCore
+                  key={w.id}
+                  deviceId={deviceId}
+                  widget={w}
+                  onEdit={handleEditWidget}
+                  onDelete={handleRemoveWidget}
+                />,
+                container
+              )
+            );
+          })}
+        </Box>
       </Box>
-    </Box>
+    </MqttProvider>
   );
 }

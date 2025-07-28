@@ -14,8 +14,6 @@ import {
 } from "@mui/material";
 import BoxLoading from "../BoxLoading";
 
-import { MqttProvider } from "./context/MqttProvider";
-
 // Sensors
 import HumiditySensor from "./sensors/HumiditySensor";
 import TemperatureSensor from "./sensors/TemperatureSensor";
@@ -32,13 +30,6 @@ export function GridStackWidgetCore({ deviceId, widget, onEdit, onDelete }) {
 
   const containerRef = useRef(null);
   const theme = useTheme();
-
-  const mqttTopics = [
-    `device/${deviceId}/temperature`,
-    `device/${deviceId}/humidity`,
-    `device/${deviceId}/light`,
-    `device/${deviceId}/soil`,
-  ];
 
   useEffect(() => {
     initial();
@@ -79,8 +70,7 @@ export function GridStackWidgetCore({ deviceId, widget, onEdit, onDelete }) {
   }
 
   return (
-    <MqttProvider topics={mqttTopics}>
-      <Paper
+    <Paper
         ref={containerRef} // ✅ ใช้กับ ResizeObserver ด้านใน
         elevation={3}
         sx={{
@@ -136,6 +126,5 @@ export function GridStackWidgetCore({ deviceId, widget, onEdit, onDelete }) {
         <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 0.5 }}>{widgetRef.title}</Typography> */}
         {getWidgetCore()}
       </Paper>
-    </MqttProvider>
   );
 }
