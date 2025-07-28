@@ -30,7 +30,7 @@ export default function FarmControlDevices() {
     await MQTTConnect();
     setLoading(true);
     const data = await SysGetDevices();
-    console.log(data);
+    // console.log(data);
     if (Array.isArray(data)) {
       setDevices(data);
     } else {

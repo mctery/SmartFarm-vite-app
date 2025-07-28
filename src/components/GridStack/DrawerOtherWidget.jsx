@@ -26,7 +26,7 @@ import { SysCreateDevice, SysUpdateDeviceSensors, SysDeleteDevice } from "../../
 import { getUserInfo } from "../../services/storage_service";
 import { ICON, SENSORS_TYPE } from "../../services/global_variable";
 
-export default function DrawerSensorList({
+export default function DrawerOtherWidget({
   open,
   onClose,
   sensors = [],
@@ -138,12 +138,12 @@ export default function DrawerSensorList({
   return (
     <Drawer anchor="right" open={open} onClose={onClose}>
       <Box sx={{ width: 500, p: 2, pt: 10 }} role="presentation">
-        <Typography variant="h6" sx={{ mb: 2 }}>เพิ่มวิดเจ็ตเซนเซอร์</Typography>
+        <Typography variant="h6" sx={{ mb: 2 }}>เพิ่มวิดเจ็ตอื่นๆ</Typography>
 
-        <Stack direction="row" spacing={1}>
+        {/* <Stack direction="row" spacing={1}>
           <Button variant="outlined" fullWidth startIcon={<LeakAddTwoToneIcon />} onClick={openAddSensorForm}>เพิ่มเซนเซอร์</Button>
           <Button variant="outlined" color="info" fullWidth startIcon={<GroupWorkIcon />} onClick={() => { onAddSensorGroup(); onClose(); }}>เพิ่มวิดเจ็ตเซนเซอร์เป็นกลุ่ม</Button>
-        </Stack>
+        </Stack> */}
 
         <Divider sx={{ my: 2 }} />
 
@@ -164,11 +164,6 @@ export default function DrawerSensorList({
             <Typography variant="body2" sx={{ mt: 1 }}>ไม่พบเซนเซอร์ที่เชื่อมต่อ</Typography>
           )}
         </List>
-
-        {/* Other Widget */}
-        {/* <Divider sx={{ my: 2 }} />
-        <Typography variant="h6" sx={{ mb: 2 }}>วิดเจ็ตอื่นๆ</Typography> */}
-
 
       </Box>
 

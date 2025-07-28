@@ -9,26 +9,26 @@ const theme = createTheme({
   palette: {
     mode: "light",
     primary: {
-      main: "#2E7D32", // ✅ สีเขียวสำหรับ navbar
+      main: "#5AB393", // ✅ สีเขียวสำหรับ navbar
     },
     background: {
       default: "#F5F5F5", // ✅ สีเทาอ่อนสำหรับเนื้อหา (container)
-      paper: "#FFFFFF",   // ✅ พื้นหลัง component/card เป็นขาว
+      paper: "#F2F2F2",   // ✅ พื้นหลัง component/card เป็นขาว
     },
   },
   components: {
     MuiAppBar: {
       styleOverrides: {
         root: {
-          backgroundColor: "#2E7D32", // ✅ Navbar สีเขียว
-          color: "#FFFFFF",
+          backgroundColor: "#5AB393", // ✅ Navbar สีเขียว
+          color: "#F2F2F2",
         },
       },
     },
     MuiDrawer: {
       styleOverrides: {
         paper: {
-          backgroundColor: "#FFFFFF", // ✅ Sidebar สีขาว
+          backgroundColor: "#F2F2F2", // ✅ Sidebar สีขาว
           color: "#000000",
         },
       },

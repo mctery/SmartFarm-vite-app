@@ -71,7 +71,7 @@ export default function WidgetLiveWather({ city = DEFAULT_CITY, containerRef }) 
       const iconCode = weatherData.weather[0].icon;
       const information = {
         name: weatherData.name,
-        WeatherIcon: WEATHER_ICON[iconCode] || WEATHER_ICON.DEFAULT,
+        weatherIcon: WEATHER_ICON[iconCode] || WEATHER_ICON.DEFAULT,
         temp: weatherData.main.temp.toFixed(0),
         humidity: weatherData.main.humidity,
         wind: weatherData.wind.speed.toFixed(2),
@@ -116,10 +116,10 @@ export default function WidgetLiveWather({ city = DEFAULT_CITY, containerRef }) 
         height: "100%",
         borderRadius: 2,
         p: 1.5,
-        overflow: "auto",
+        overflow: "hidden",
         display: "flex",
         flexDirection: "column",
-        justifyContent: "flex-start",
+        justifyContent: "space-between",
         gap: 1.2,
       }}
     >
@@ -139,38 +139,36 @@ export default function WidgetLiveWather({ city = DEFAULT_CITY, containerRef }) 
           {weather.fetchUpdate}
         </Typography>
 
-        <Stack direction="row" spacing={0.5} alignItems="center">
+        <Stack direction="row" spacing={1} alignItems="center">
           <LocationOnIcon fontSize="small" />
           <Typography fontSize={12}>{weather.name}</Typography>
-          <Tooltip title="รีเฟรช">
-            <IconButton onClick={fetchWeather} size="small" sx={{ color: "#fff" }}>
-              <RefreshIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
         </Stack>
       </Stack>
 
       {/* Temperature + Icon */}
-      <Stack direction="row" alignItems="center" spacing={1}>
-        {/* <Box sx={{ fontSize: 40 }}>{WeatherIcon}</Box> */}
-        <Typography
-          fontWeight="bold"
-          sx={{ fontSize: "clamp(32px, 6vw, 48px)" }}
-        >
-          {weather.temp}°
-        </Typography>
+      <Stack direction="row" alignItems="center" spacing={3}>
+        <Box sx={{ fontSize: 50 }}>{weather.weatherIcon}</Box>
+        <Typography fontWeight="bold" sx={{ fontSize: "clamp(32px, 6vw, 48px)" }}>{weather.temp}°</Typography>
+        <Typography fontSize={32} sx={{ textTransform: "capitalize" }}>{weather.description}</Typography>
       </Stack>
-
-      <Stack spacing={0.5}>
-        <Typography fontSize={14}>💧 ความชื้น: {weather.humidity}%</Typography>
-        <Typography fontSize={14}>💨 {weather.wind} m/s</Typography>
-        <Typography fontSize={14}>☁️ {weather.clouds}%</Typography>
-        <Typography fontSize={13} sx={{ textTransform: "capitalize" }}>{weather.description}</Typography>
+          
+      <Stack direction="row" alignItems="center" justifyContent={"space-between"} spacing={3}>
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Typography fontSize={14}>💧 ความชื้น: {weather.humidity}%</Typography>
+          <Typography fontSize={14}>💨 {weather.wind} m/s</Typography>
+          <Typography fontSize={14}>☁️ {weather.clouds}%</Typography>
+        </Stack>
         {/* <Typography fontSize={13}>🌡️ สูงสุด/ต่ำสุด: {tempMax}° / {tempMin}°</Typography>
         <Typography fontSize={13}>🧭 ทิศลม: {windDirection}</Typography>
         <Typography fontSize={13}>💥 ลมกระโชก: {windGust} m/s</Typography>
         <Typography fontSize={13}>👁️ ทัศนวิสัย: {(visibility / 1000).toFixed(1)} กม.</Typography>
         <Typography fontSize={12} sx={{ opacity: 0.8 }}>⏱️ อัปเดตล่าสุด: {updatedAt}</Typography> */}
+
+        <Tooltip title="รีเฟรช">
+          <IconButton onClick={fetchWeather} size="small" sx={{ color: "#fff" }}>
+            <RefreshIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
       </Stack>
     </Box>
   );

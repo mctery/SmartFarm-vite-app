@@ -44,16 +44,16 @@ export default function DeviceWidget({ device, onEdit, onDelete }) {
 
   useEffect(() => {
     // let isMounted = true; // ป้องกัน setState หลัง unmount
-    let unsubscribeCheckin = null;
-    let unsubscribeWill = null;
+    let subscribeCheckin = null;
+    let subscribeWill = null;
 
     async function fetchMQTT() {
       try {
-        unsubscribeCheckin = await MQTTSubscribe(`device/${device.device_id}/checkin`, (payload) => {
+        subscribeCheckin = await MQTTSubscribe(`device/${device.device_id}/checkin`, (payload) => {
           setRealtime(payload);
         });
 
-        unsubscribeWill = await MQTTSubscribe(`device/${device.device_id}/will`, () => {
+        subscribeWill = await MQTTSubscribe(`device/${device.device_id}/will`, () => {
           setRealtime(null);
         });
       } catch (err) {
@@ -65,8 +65,8 @@ export default function DeviceWidget({ device, onEdit, onDelete }) {
 
     return () => {
       // isMounted = false; // ✅ ป้องกัน memory leak ในบางเคส
-      unsubscribeCheckin?.(); // ✅ cleanup
-      unsubscribeWill?.();
+      subscribeCheckin?.(); // ✅ cleanup
+      subscribeWill?.();
     };
   }, [device.device_id]);
 

@@ -61,6 +61,13 @@ export const SENSORS_TYPE = {
   },
 };
 
+const WIDGET_TYPE = {
+  watherlive: { key: 'watherlive', type: 'watherlive', name: 'รายงานสภาพอากาศ' },
+  temperature: { key: 'temperature', type: 'temperature', name: 'อุณหภูมิ' },
+  humidity: { key: 'humidity', type: 'humidity', name: 'ความชื้น' },
+  light: { key: 'light', type: 'light', name: 'แสง' },
+}
+
 export const WEATHER_ICON = {
   "01d": <i className="wi wi-day-sunny" />,
   "01n": <i className="wi wi-night-clear" />,

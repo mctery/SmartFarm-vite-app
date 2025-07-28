@@ -69,5 +69,19 @@ export function MQTTSubscribe(topic, onMessage) {
         reject(err);
       }
     });
+
+    // client.on("message", (topic, message) => {
+    //   const handler = topicListeners.get(topic);
+    //   if (handler) {
+    //     try {
+    //       const payload = JSON.parse(message.toString());
+    //       // console.log("💬 MQTT PAYLOAD:", topic, payload);  // ✅ debug เพิ่ม
+    //       handler(payload);
+    //     } catch (err) {
+    //       console.error("❌ MQTT JSON Parse Error:", err);
+    //     }
+    //   }
+    // });
+
   });
 }

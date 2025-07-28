@@ -9,7 +9,7 @@ import {
   Stack,
   Tooltip,
   Divider,
-  useTheme
+  useTheme,
 } from "@mui/material";
 import { useSnackbar } from "notistack";
 
@@ -20,19 +20,16 @@ import "gridstack/dist/gridstack.min.css";
 import BoxLoading from "../../components/BoxLoading";
 import DialogConfirm from "../../components/DaialogConfirm";
 import DrawerSensorList from "../../components/GridStack/DrawerSensorList";
-
+import DrawerOtherWidget from "../../components/GridStack/DrawerOtherWidget";
 
 import {
   getWidgetLayout,
   saveWidgetLayout,
   deleteWidgetLayout,
 } from "../../services/widget_service";
-import {
-  SysGetDeviceSensorsById,
-} from "../../services/sensor_service";
+import { SysGetDeviceSensorsById } from "../../services/sensor_service";
 import { ICON } from "../../services/global_variable";
 import { getUserInfo } from "../../services/storage_service";
-
 
 export default function FarmGridStackOverview() {
   const { deviceId } = useParams();
@@ -46,9 +43,12 @@ export default function FarmGridStackOverview() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [widgets, setWidgets] = useState([]);
-  const [openDrawerSensors, setOpenDrawerSensors] = useState(false);
   const [sensors, setSensors] = useState([]);
+
+  const [openDrawerSensors, setOpenDrawerSensors] = useState(false);
+  const [openDialogOtherWidget, setOpenDialogOtherWidget] = useState(false);
   const [openDialogWidgetRemove, setDialogWidgetRemove] = useState(false);
+
   const { enqueueSnackbar } = useSnackbar();
 
   const refreshSensors = async () => {
@@ -115,17 +115,26 @@ export default function FarmGridStackOverview() {
 
     import("react-dom/client").then((m) => {
       const root = m.createRoot(contentDiv);
-      root.render(<GridStackWidgetCore deviceId={deviceId} widget={widget} onEdit={handleEditWidget} onDelete={handleRemoveWidget}/>);
+      root.render(
+        <GridStackWidgetCore
+          deviceId={deviceId}
+          widget={widget}
+          onEdit={handleEditWidget}
+          onDelete={handleRemoveWidget}
+        />
+      );
     });
   };
 
   const handleUpdateLayout = async () => {
     try {
       if (!grid.current) return;
-      
+
       const domNodes = grid.current.el.querySelectorAll(".grid-stack-item");
       const updated = widgets.map((w) => {
-        const el = Array.from(domNodes).find((el) => parseInt(el.getAttribute("gs-id")) === w.id);
+        const el = Array.from(domNodes).find(
+          (el) => parseInt(el.getAttribute("gs-id")) === w.id
+        );
         const node = el?.gridstackNode;
         return node ? { ...w, x: node.x, y: node.y, w: node.w, h: node.h } : w;
       });
@@ -207,8 +216,13 @@ export default function FarmGridStackOverview() {
 
   const handleOpenDialogWidgetRemove = () => setDialogWidgetRemove(true);
   const handleCloseDialogWidgetRemove = () => setDialogWidgetRemove(false);
+
   const handleOpenSideDrawerSensors = () => setOpenDrawerSensors(true);
   const handleCloseSideDrawerSensors = () => setOpenDrawerSensors(false);
+
+  const handleOpenSideDrawerOtherWidget = () => setOpenDialogOtherWidget(true);
+  const handleCloseSideDrawerOtherWidget = () =>
+    setOpenDialogOtherWidget(false);
 
   if (isLoading) return <BoxLoading />;
 
@@ -222,7 +236,9 @@ export default function FarmGridStackOverview() {
         handleConfirm={handleClearLayout}
       />
 
-      <Typography variant="h6" sx={{ mb: 1 }}>อุปกรณ์: {deviceId}</Typography>
+      <Typography variant="h6" sx={{ mb: 1 }}>
+        อุปกรณ์: {deviceId}
+      </Typography>
 
       <Stack
         direction="row"
@@ -240,6 +256,16 @@ export default function FarmGridStackOverview() {
           >
             เพิ่มวิดเจ็ตเซนเซอร์
           </Button>
+          <Button
+            onClick={handleOpenSideDrawerOtherWidget}
+            variant="contained"
+            size="small"
+            startIcon={ICON.ADD.icon}
+            color={ICON.ADD.color}
+          >
+            เพิ่มวิดเจ็ตอื่นๆ
+          </Button>
+          <Divider orientation="vertical" flexItem />
           <Button
             onClick={handleUpdateLayout}
             variant="contained"
@@ -271,6 +297,13 @@ export default function FarmGridStackOverview() {
         onAddSensorGroup={handleAddSensorGroup}
         onUpdateSensor={handleUpdateSensor}
         onDeleteSensor={handleDeleteSensor}
+      />
+
+      <DrawerOtherWidget
+        currentUserId={CURRENT_USER_ID}
+        deviceId={deviceId}
+        open={openDialogOtherWidget}
+        onClose={handleCloseSideDrawerOtherWidget}
       />
 
       <Box
