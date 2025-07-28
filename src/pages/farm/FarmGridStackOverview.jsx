@@ -14,6 +14,7 @@ import {
 import { useSnackbar } from "notistack";
 
 import { GridStack } from "gridstack";
+import { createPortal } from "react-dom";
 import { GridStackWidgetCore } from "../../components/GridStack/GridStackWidgetCore";
 import "gridstack/dist/gridstack.min.css";
 
@@ -37,6 +38,7 @@ export default function FarmGridStackOverview() {
   const grid = useRef(null);
   const nextId = useRef(1);
   const isSavingRef = useRef(false);
+  const widgetContainersRef = useRef(new Map());
   const theme = useTheme();
 
   const CURRENT_USER_ID = getUserInfo().user_id;
@@ -72,6 +74,10 @@ export default function FarmGridStackOverview() {
 
   useEffect(() => {
     if (!gridRef.current || isSavingRef.current) return;
+
+    const containers = widgetContainersRef.current;
+    containers.clear();
+
     if (grid.current) {
       grid.current.destroy(false);
       grid.current = null;
@@ -94,6 +100,7 @@ export default function FarmGridStackOverview() {
     return () => {
       grid.current?.destroy(false);
       grid.current = null;
+      containers.clear();
     };
   }, [widgets]);
 
@@ -113,17 +120,7 @@ export default function FarmGridStackOverview() {
     wrapper.appendChild(contentDiv);
     grid.current.makeWidget(wrapper);
 
-    import("react-dom/client").then((m) => {
-      const root = m.createRoot(contentDiv);
-      root.render(
-        <GridStackWidgetCore
-          deviceId={deviceId}
-          widget={widget}
-          onEdit={handleEditWidget}
-          onDelete={handleRemoveWidget}
-        />
-      );
-    });
+    widgetContainersRef.current.set(widget.id, contentDiv);
   };
 
   const handleUpdateLayout = async () => {
@@ -192,6 +189,7 @@ export default function FarmGridStackOverview() {
   };
 
   const handleRemoveWidget = (id) => {
+    widgetContainersRef.current.delete(id);
     setWidgets((prev) => prev.filter((w) => w.id !== id));
   };
 
@@ -206,6 +204,7 @@ export default function FarmGridStackOverview() {
 
   const handleClearLayout = async () => {
     try {
+      widgetContainersRef.current.clear();
       await deleteWidgetLayout(deviceId);
       setWidgets([]);
       handleCloseDialogWidgetRemove();
@@ -316,6 +315,22 @@ export default function FarmGridStackOverview() {
         }}
       >
         <div className="grid-stack" ref={gridRef}></div>
+        {widgets.map((w) => {
+          const container = widgetContainersRef.current.get(w.id);
+          return (
+            container &&
+            createPortal(
+              <GridStackWidgetCore
+                key={w.id}
+                deviceId={deviceId}
+                widget={w}
+                onEdit={handleEditWidget}
+                onDelete={handleRemoveWidget}
+              />,
+              container
+            )
+          );
+        })}
       </Box>
     </Box>
   );
