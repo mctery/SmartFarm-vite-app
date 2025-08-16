@@ -10,7 +10,12 @@ import {
   Tooltip,
   Divider,
   useTheme,
-  Portal
+  Portal,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
 } from "@mui/material";
 import { useSnackbar } from "notistack";
 
@@ -30,7 +35,7 @@ import {
   deleteWidgetLayout,
 } from "../../services/widget_service";
 import { SysGetDeviceSensorsById } from "../../services/sensor_service";
-import { ICON } from "../../services/global_variable";
+import { ICON, MQTT_TOPIC } from "../../services/global_variable";
 import { getUserInfo } from "../../services/storage_service";
 
 import { MqttProvider } from "../../components/GridStack/context/MqttProvider";
@@ -55,14 +60,18 @@ export default function FarmGridStackOverview() {
   const [openDialogOtherWidget, setOpenDialogOtherWidget] = useState(false);
   const [openDialogWidgetRemove, setDialogWidgetRemove] = useState(false);
 
-  const mqttTopics = [
-    `device/${deviceId}/temperature`,
-    `device/${deviceId}/humidity`,
-    `device/${deviceId}/light`,
-    `device/${deviceId}/soil`,
+  const [edit, setEdit] = useState({
+    open: false,            // เดิมคือ editDialogOpen
+    id: null,               // editingWidgetId
+    type: "",               // editType
+    title: "",              // editTitle
+    bgcolor: "#ffffff",   // editBgColor
+    unit: "",               // editUnit
+  });
 
-    `device/${deviceId}/will`
-  ];
+  const mqttTopics = MQTT_TOPIC.map((topic) => {
+    return topic.replace("+", deviceId);
+  });
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -77,6 +86,9 @@ export default function FarmGridStackOverview() {
       const widgets = await getWidgetLayout(deviceId);
       const maxId = widgets.reduce((m, w) => (w.id > m ? w.id : m), 0);
       nextId.current = maxId + 1;
+
+      // console.log(sensors);
+      // console.log(widgets);
 
       setSensors(sensors);
       setWidgets(widgets);
@@ -143,31 +155,20 @@ export default function FarmGridStackOverview() {
 
       const domNodes = grid.current.el.querySelectorAll(".grid-stack-item");
       const updated = widgets.map((w) => {
-        const el = Array.from(domNodes).find(
-          (el) => parseInt(el.getAttribute("gs-id")) === w.id
-        );
+        const el = Array.from(domNodes).find( (el) => parseInt(el.getAttribute("gs-id")) === w.id );
         const node = el?.gridstackNode;
         return node ? { ...w, x: node.x, y: node.y, w: node.w, h: node.h } : w;
       });
 
       setWidgets(updated);
       await saveWidgetLayout(deviceId, updated);
-      enqueueSnackbar("บันทึกผังวิดเจ็ตเรียบร้อยแล้ว", {
-        variant: "success",
-        autoHideDuration: 3000,
-      });
+      enqueueSnackbar("บันทึกผังวิดเจ็ตเรียบร้อยแล้ว", { variant: "success", autoHideDuration: 3000 });
     } catch (error) {
-      enqueueSnackbar(`เกิดข้อผิดพลาด: ${error}`, {
-        variant: "error",
-        autoHideDuration: 3000,
-      });
+      enqueueSnackbar(`เกิดข้อผิดพลาด: ${error}`, { variant: "error", autoHideDuration: 3000 });
     }
   };
 
-  const handleAddWidget = (payload) => {
-    setWidgets((prev) => [...prev, payload]);
-    nextId.current += 1;
-  };
+  const handleAddWidget = (payload) => { setWidgets((prev) => [...prev, payload]); nextId.current += 1; };
 
   const handleAddSensor = async (sensor) => {
     handleAddWidget({
@@ -176,31 +177,17 @@ export default function FarmGridStackOverview() {
       y: 0,
       w: 1,
       h: 1,
+      title: `${sensor.sensor_name}`,
       type: `${sensor.sensor_type}`,
-      title: `${sensor.sensor_type} (${sensor.sensor_id})`,
-      sensorKey: sensor.sensor_id,
+      sensorKey: `${sensor.sensor_id}`,
+      unit: `${sensor.unit}`,
+      bgcolor: `${sensor.bgcolor}`,
     });
     await refreshSensors();
   };
 
-  const handleAddSensorGroup = () => {
-    handleAddWidget({
-      id: nextId.current,
-      x: 0,
-      y: 0,
-      w: 1,
-      h: 1,
-      type: "sensorGroup",
-      title: "กลุ่มเซนเซอร์",
-    });
-  };
-
-  const handleUpdateSensor = async () => {
-    await refreshSensors();
-  };
-  const handleDeleteSensor = async () => {
-    await refreshSensors();
-  };
+  const handleUpdateSensor = async () => { await refreshSensors(); };
+  const handleDeleteSensor = async () => { await refreshSensors(); };
 
   const handleRemoveWidget = (id) => {
     widgetContainersRef.current.delete(id);
@@ -208,13 +195,25 @@ export default function FarmGridStackOverview() {
   };
 
   const handleEditWidget = (id) => {
-    const title = window.prompt("ตั้งชื่อใหม่สำหรับวิดเจ็ตนี้:");
-    if (title !== null) {
-      setWidgets((prev) =>
-        prev.map((w) => (w.id === id ? { ...w, title } : w))
-      );
-    }
+    const widget = widgets.find((w) => w.id === id);
+    if (!widget) return;
+
+    setEdit({
+      open: true,
+      id,
+      title: widget.title ?? "",
+      type: widget.type ?? "",
+      bgcolor: widget.bgcolor ?? "#ffffff",
+      unit: widget.unit ?? "",
+    });
   };
+
+  const handleSaveWidgetConfig = () => {
+    setWidgets((prev) => prev.map((w) => w.id === edit.id ? { ...w, title: edit.title, type: edit.type, bgcolor: edit.bgcolor, unit: edit.unit } : w ));
+    setEdit({ ...edit, open: false }); // ปิด dialog
+  };
+
+  const handleCloseEdit = () => setEdit((prev) => ({ ...prev, open: false }));
 
   const handleClearLayout = async () => {
     try {
@@ -234,14 +233,63 @@ export default function FarmGridStackOverview() {
   const handleCloseSideDrawerSensors = () => setOpenDrawerSensors(false);
 
   const handleOpenSideDrawerOtherWidget = () => setOpenDialogOtherWidget(true);
-  const handleCloseSideDrawerOtherWidget = () =>
-    setOpenDialogOtherWidget(false);
+  const handleCloseSideDrawerOtherWidget = () => setOpenDialogOtherWidget(false);
 
   if (isLoading) return <BoxLoading />;
 
   return (
     <MqttProvider topics={mqttTopics}>
       <Box sx={{ p: 2 }}>
+        <Dialog
+          open={edit.open}
+          onClose={handleCloseEdit}
+          fullWidth
+          maxWidth="sm"
+        >
+          <DialogTitle>แก้ไขวิดเจ็ต</DialogTitle>
+          <DialogContent>
+            <TextField
+              label="ชื่อวิดเจ็ต"
+              fullWidth
+              size="small"
+              value={edit.type}
+              disabled
+              onChange={(e) => setEdit((prev) => ({ ...prev, type: e.target.value }))}
+              sx={{ mb: 2, mt: 2 }}
+            />
+            <TextField
+              label="ชื่อวิดเจ็ต"
+              fullWidth
+              size="small"
+              value={edit.title}
+              onChange={(e) => setEdit((prev) => ({ ...prev, title: e.target.value }))}
+              sx={{ mb: 2, mt: 2 }}
+            />
+            <TextField
+              label="Background Color"
+              type="color"
+              fullWidth
+              size="small"
+              value={edit.bgcolor}
+              onChange={(e) => setEdit((prev) => ({ ...prev, bgcolor: e.target.value }))}
+              // InputLabelProps={{ shrink: true }}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="Unit"
+              fullWidth
+              size="small"
+              value={edit.unit}
+              onChange={(e) => setEdit((prev) => ({ ...prev, unit: e.target.value }))}
+              // InputLabelProps={{ shrink: true }}
+            />
+          </DialogContent>
+          <DialogActions sx={{ pr: 3, pb: 2 }}>
+            <Button size="small" onClick={handleCloseEdit}>ยกเลิก</Button>
+            <Button size="small" variant="contained" onClick={handleSaveWidgetConfig} disabled={edit.title.trim() === ""}>บันทึก</Button>
+          </DialogActions>
+        </Dialog>
+
         <DialogConfirm
           open={openDialogWidgetRemove}
           title="ลบผังวิดเจ็ตทั้งหมด?"
@@ -250,9 +298,7 @@ export default function FarmGridStackOverview() {
           handleConfirm={handleClearLayout}
         />
 
-        <Typography variant="h6" sx={{ mb: 1 }}>
-          อุปกรณ์: {deviceId}
-        </Typography>
+        <Typography variant="h6" sx={{ mb: 1 }}>อุปกรณ์: {deviceId}</Typography>
 
         <Stack
           direction="row"
@@ -308,7 +354,7 @@ export default function FarmGridStackOverview() {
           sensors={sensors}
           onClose={handleCloseSideDrawerSensors}
           onAddSensor={handleAddSensor}
-          onAddSensorGroup={handleAddSensorGroup}
+          // onAddSensorGroup={handleAddSensorGroup}
           onUpdateSensor={handleUpdateSensor}
           onDeleteSensor={handleDeleteSensor}
         />

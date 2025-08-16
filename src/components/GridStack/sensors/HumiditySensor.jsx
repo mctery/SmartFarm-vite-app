@@ -1,16 +1,37 @@
-import PropTypes from 'prop-types';
-import { Box, Typography } from '@mui/material';
-import WaterDropIcon from '@mui/icons-material/WaterDrop';
+import PropTypes from "prop-types";
+import WaterDropIcon from "@mui/icons-material/WaterDrop";
+import { SENSORS_TYPE } from "../../../services/global_variable";
 
-export default function HumiditySensor({ value }) {
+import useSensorValue from "./hooks/useSensorValue";
+import useAnimatedNumber from "./hooks/useAnimatedNumber";
+import SensorCard from "./components/SensorCard";
+
+export default function HumiditySensor({ deviceId, widget }) {
+  const topic = `device/${deviceId}/humidity`;
+  const [value, loading] = useSensorValue(topic, widget.sensorKey);
+
+  const display = useAnimatedNumber(value);
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-      <WaterDropIcon fontSize="small" color="primary" />
-      <Typography variant="body2">{value ?? '-'}</Typography>
-    </Box>
+    <SensorCard
+      icon={SENSORS_TYPE.humidity.icon}
+      CenterIcon={WaterDropIcon}
+      title={widget.title ?? "Humidity"}
+      value={display}
+      unit={widget.unit}
+      deviceId={deviceId}
+      sensorKey={widget.sensorKey}
+      loading={loading}
+      bgcolor={widget.bgcolor}
+    />
   );
 }
 
 HumiditySensor.propTypes = {
-  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  deviceId: PropTypes.string,
+  widget: PropTypes.shape({
+    title:     PropTypes.string,
+    sensorKey: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    unit:      PropTypes.string,
+    bgcolor:   PropTypes.string,
+  }),
 };

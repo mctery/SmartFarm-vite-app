@@ -31,7 +31,7 @@ export default function DrawerSensorList({
   onClose,
   sensors = [],
   onAddSensor,
-  onAddSensorGroup,
+  // onAddSensorGroup,
   onUpdateSensor,
   onDeleteSensor,
   deviceId,
@@ -41,6 +41,7 @@ export default function DrawerSensorList({
   const [isEditMode, setIsEditMode] = useState(false);
   const [editId, setEditId] = useState(null); // _id ของ sensor ที่จะแก้ไข
   const [formData, setFormData] = useState({
+    sensor_name: "",
     sensor_type: "",
     sensor_id: "",
     unit: "",
@@ -52,7 +53,7 @@ export default function DrawerSensorList({
   const capitalizeFirstLetter = (val) => String(val).charAt(0).toUpperCase() + String(val).slice(1);
 
   const openAddSensorForm = () => {
-    setFormData({ sensor_type: "", sensor_id: "", unit: "", status: true });
+    setFormData({ sensor_name: "", sensor_type: "", sensor_id: "", unit: "", bgcolor: "", status: true });
     setIsEditMode(false);
     setEditId(null);
     handleDialogOpen();
@@ -60,9 +61,11 @@ export default function DrawerSensorList({
 
   const handleEditSensor = (sensor) => {
     setFormData({
+      sensor_name: sensor.sensor_name,
       sensor_type: sensor.sensor_type,
       sensor_id: sensor.sensor_id,
       unit: sensor.unit || "",
+      bgcolor: sensor.bgcolor || "",
       status: sensor.status || true
     });
     setEditId(sensor._id); // ต้องแน่ใจว่า sensor มี _id
@@ -92,7 +95,8 @@ export default function DrawerSensorList({
         if (isEditMode) {
           onUpdateSensor(result);
         } else {
-          onAddSensor(result);
+          console.log(result);
+          // onAddSensor(result);
         }
       }
       
@@ -103,7 +107,7 @@ export default function DrawerSensorList({
       handleDialogClose();
 
       setOpenForm(false);
-      setFormData({ sensor_type: "", sensor_id: "", unit: "", status: true });
+      setFormData({ sensor_name: "", sensor_type: "", sensor_id: "", unit: "", bgcolor: "", status: true });
       setEditId(null);
       setIsEditMode(false);
     }
@@ -142,7 +146,7 @@ export default function DrawerSensorList({
 
         <Stack direction="row" spacing={1}>
           <Button variant="outlined" fullWidth startIcon={<LeakAddTwoToneIcon />} onClick={openAddSensorForm}>เพิ่มเซนเซอร์</Button>
-          <Button variant="outlined" color="info" fullWidth startIcon={<GroupWorkIcon />} onClick={() => { onAddSensorGroup(); onClose(); }}>เพิ่มวิดเจ็ตเซนเซอร์เป็นกลุ่ม</Button>
+          {/* <Button variant="outlined" color="info" fullWidth startIcon={<GroupWorkIcon />} onClick={() => { onAddSensorGroup(); onClose(); }}>เพิ่มวิดเจ็ตเซนเซอร์เป็นกลุ่ม</Button> */}
         </Stack>
 
         <Divider sx={{ my: 2 }} />
@@ -153,7 +157,7 @@ export default function DrawerSensorList({
             sensors.map((sensor, index) => (
               <ListItem key={`sensor-${index}`} button="true" sx={{ cursor: "pointer" }}>
                 <ListItemIcon>{SENSORS_TYPE[sensor.sensor_type]?.icon}</ListItemIcon>
-                <ListItemText primary={capitalizeFirstLetter(sensor.sensor_type)} secondary={`Sensor ID: ${sensor.sensor_id}`}/>
+                <ListItemText primary={`${sensor.sensor_name}`} secondary={`${capitalizeFirstLetter(sensor.sensor_type)} ID: ${sensor.sensor_id}`}/>
                 <ButtonGroup size="small" variant="contained">
                   <Button color="success" startIcon={ICON.ADD.icon} size="small" onClick={() => onAddSensor(sensor)}>เพิ่ม</Button>
                   <Button color="warning" startIcon={ICON.EDIT.icon} size="small" onClick={() => handleEditSensor(sensor)}>แก้ไข</Button>
@@ -177,6 +181,14 @@ export default function DrawerSensorList({
         <DialogTitle>{isEditMode ? "แก้ไขเซนเซอร์" : "เพิ่มเซนเซอร์ใหม่"}</DialogTitle>
         <DialogContent>
           <TextField
+            label="Sensor Name"
+            size="small"
+            fullWidth
+            margin="normal"
+            value={formData.sensor_name}
+            onChange={(e) => setFormData((prev) => ({ ...prev, sensor_name: e.target.value })) }
+          />
+          <TextField
             label="Sensor Type"
             size="small"
             fullWidth
@@ -193,12 +205,21 @@ export default function DrawerSensorList({
             onChange={(e) => setFormData((prev) => ({ ...prev, sensor_id: e.target.value })) }
           />
           <TextField
-            label="หน่วย (°C, %, lux)"
+            label="Unit (°C, %, lux)"
             size="small"
             fullWidth
             margin="normal"
             value={formData.unit}
             onChange={(e) => setFormData((prev) => ({ ...prev, unit: e.target.value })) }
+          />
+          <TextField
+            label="Color Code"
+            type="color"
+            size="small"
+            fullWidth
+            margin="normal"
+            value={formData.bgcolor}
+            onChange={(e) => setFormData((prev) => ({ ...prev, bgcolor: e.target.value })) }
           />
 
           <Divider sx={{ my: 1 }} />

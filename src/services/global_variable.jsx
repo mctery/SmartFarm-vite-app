@@ -2,6 +2,7 @@
 import ThermostatIcon from "@mui/icons-material/Thermostat";
 import WaterDropIcon from "@mui/icons-material/WaterDrop";
 import LightbulbIcon from "@mui/icons-material/Lightbulb";
+import GrassIcon from '@mui/icons-material/Grass';
 
 // System info
 import InfoIcon from '@mui/icons-material/Info';
@@ -59,6 +60,13 @@ export const SENSORS_TYPE = {
     unit: "",
     icon: <LightbulbIcon />,
   },
+  soil: {
+    key: 'soil',
+    type: "soil",
+    name: "ความชื้นดิน",
+    unit: "%",
+    icon: <GrassIcon />,
+  },
 };
 
 const WIDGET_TYPE = {
@@ -115,3 +123,12 @@ export const ICON = {
     SAVE:       { icon: <SaveIcon/>, color: "info" },
     DELETE:     { icon: <DeleteIcon/>, color: "error" }, 
 };
+
+export const MQTT_TOPIC = [
+  `device/+/temperature`,
+  `device/+/humidity`,
+  `device/+/light`,
+  `device/+/soil`,
+
+  `device/+/will`
+]

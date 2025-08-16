@@ -41,12 +41,8 @@ export default function DialogConfirm({
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button variant="outlined" size="small" onClick={onClose} color={ICON.ERROR.color}>
-          ยกเลิก
-        </Button>
-        <Button variant="contained" size="small" onClick={onConfirm} autoFocus color={ICON.SUCCESS.color}>
-          ตกลง
-        </Button>
+        <Button variant="outlined" size="small" onClick={onClose} color={ICON.ERROR.color}>ยกเลิก</Button>
+        <Button variant="contained" size="small" onClick={onConfirm} autoFocus color={ICON.SUCCESS.color}>ตกลง</Button>
       </DialogActions>
     </Dialog>
   );

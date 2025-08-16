@@ -18,6 +18,7 @@ import BoxLoading from "../BoxLoading";
 import HumiditySensor from "./sensors/HumiditySensor";
 import TemperatureSensor from "./sensors/TemperatureSensor";
 import LightSensor from "./sensors/LightSensor";
+import SoilSensor from "./sensors/SoilSensor";
 
 // Wather Live
 import WidgetLiveWather from "./WidgetLiveWather";
@@ -55,11 +56,13 @@ export function GridStackWidgetCore({ deviceId, widget, onEdit, onDelete }) {
       case "temperature":
         return <TemperatureSensor deviceId={deviceId} widget={widget} />;
       case "humidity":
-        return <HumiditySensor />;
+        return <HumiditySensor deviceId={deviceId} widget={widget}/>;
       case "light":
-        return <LightSensor />;
+        return <LightSensor deviceId={deviceId} widget={widget}/>;
+      case "soil":
+        return <SoilSensor deviceId={deviceId} widget={widget} />;
       case "watherlive":
-        return <WidgetLiveWather city="Bangkok" containerRef={containerRef} />;
+        return <WidgetLiveWather city={widgetRef?.title} containerRef={containerRef} />;
       default:
         return false;
     }
@@ -96,34 +99,17 @@ export function GridStackWidgetCore({ deviceId, widget, onEdit, onDelete }) {
             opacity: showButtons ? 1 : 0,
             transition: "opacity 0.3s ease-in-out",
             backgroundColor:
-              theme.palette.mode === "dark"
-                ? theme.palette.background.default
-                : theme.palette.grey[300],
+              theme.palette.mode === "dark" ? theme.palette.background.default : theme.palette.grey[300],
           }}
         >
           <Tooltip title="แก้ไขวิดเจ็ต">
-            <IconButton
-              size="small"
-              onClick={handleEditWidget}
-              color={ICON.EDIT.color}
-            >
-              {ICON.EDIT.icon}
-            </IconButton>
+            <IconButton size="small" onClick={handleEditWidget} color={ICON.EDIT.color}>{ICON.EDIT.icon}</IconButton>
           </Tooltip>
           <Tooltip title="ลบวิดเจ็ต">
-            <IconButton
-              size="small"
-              onClick={handleRemoveWidget}
-              color={ICON.REMOVE.color}
-            >
-              {ICON.REMOVE.icon}
-            </IconButton>
+            <IconButton size="small" onClick={handleRemoveWidget} color={ICON.REMOVE.color}>{ICON.REMOVE.icon}</IconButton>
           </Tooltip>
         </Stack>
-
-        {/* เนื้อหา widget */}
-        {/* <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 0.5 }}>{deviceIdRef}</Typography>
-        <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 0.5 }}>{widgetRef.title}</Typography> */}
+        
         {getWidgetCore()}
       </Paper>
   );
